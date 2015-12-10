@@ -12,6 +12,9 @@ Python 3, Flask, PostgreSQL, SQLAlchemy
 - ./run.py
 - go to localhost:5000/projects
 
+### How to contribute
+git-flow, please.
+
 ### todo
 - projects: list, create actions
 - simple admin dashboard
