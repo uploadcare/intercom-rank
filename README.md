@@ -18,5 +18,5 @@ git-flow, please.
 ### todo
 - projects: list, create actions
 - simple admin dashboard
-- move from sqlite to postgresql
+- move from sqlite to postgresql before production
 - tests
