@@ -17,7 +17,7 @@ with dashboard for initial config
 git-flow, please.
 
 ### todo
-- projects: list, create actions
+- projects: create action
 - simple admin dashboard
 - move from sqlite to postgresql before production
 - split controllers and models/bl into different packages?
