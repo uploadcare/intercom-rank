@@ -3,7 +3,8 @@ small web-service providing intercom + alexa integration
 with dashboard for initial config
 
 ### stack
-Python 3, Flask, PostgreSQL, SQLAlchemy
+- Python 3, Flask (Jinja2, WTForms)
+- PostgreSQL via SQLAlchemy
 
 ### Installation & configuration (development)
 - git clone
@@ -19,4 +20,6 @@ git-flow, please.
 - projects: list, create actions
 - simple admin dashboard
 - move from sqlite to postgresql before production
+- split controllers and models/bl into different packages?
+- auth via google account
 - tests

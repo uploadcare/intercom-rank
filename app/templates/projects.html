@@ -3,6 +3,11 @@
 <div class="jumbotron">
     <div class="container">
         <h3>List of projects</h3>
+        <ul>
+            {% for project in projects %}
+            <li>#{{ project.id }} {{ project.name }}</li>
+            {% endfor %}
+        </ul>
     </div>
 </div>
 {% endblock %}

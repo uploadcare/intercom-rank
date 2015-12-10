@@ -2,7 +2,7 @@ from flask import render_template, request, abort, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, login_required
 
 from . import app, db, lm
-from .models import User
+from .models import User, Project
 
 
 @lm.user_loader
@@ -21,7 +21,8 @@ def init_request():
 @app.route('/projects')
 @login_required
 def projects():
-    return render_template('projects.html')
+    ctx = {'projects': Project.query.all()}
+    return render_template('projects.html', **ctx)
 
 
 @app.route('/logout')
