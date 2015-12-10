@@ -69,7 +69,7 @@ def login():
             try:
                 next = request.form['next']
                 return redirect(next)
-            except:
+            except Exception as e:  # fixme too broad exception
                 return redirect(url_for('index'))
         else:
             flash('Invalid login')
