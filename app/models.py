@@ -1,24 +1,8 @@
 from app import db
+from flask.ext.login import UserMixin
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), index=True, unique=True)
-
-    @property
-    def is_authenticated(self):
-        return True
-
-    @property
-    def is_active(self):
-        return True
-
-    @property
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return str(self.id)
-
-    def __repr__(self):
-        return '<User %r>' % self.email
+    username = db.Column(db.String)
+    password = db.Column(db.String)

@@ -4,13 +4,13 @@
     <div class="row">
         <div class="col-md-12">
             <center>
-                <h1>Login</h1>
+                <h1>Register</h1>
             </center>
         </div>
     </div>
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
-            <form action="/login" method="post">
+            <form action="/register" method="post">
                 <div class="form-group">
                     <label for="txtUsername">Username</label>
                     <input type="text" class="form-control" id="txtUsername" name="txtUsername"/>
@@ -19,10 +19,7 @@
                     <label for="txtPassword">Password</label>
                     <input type="password" class="form-control" id="txtPassword" name="txtPassword"/>
                 </div>
-                {% if next %}
-                <input type="hidden" name="next" value="{{ next }}">
-                {% endif %}
-                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="submit" class="btn btn-primary">Register</button>
             </form>
         </div>
     </div>
