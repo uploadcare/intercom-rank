@@ -1,6 +1,7 @@
 certifi==2015.11.20.1
 decorator==4.0.5
 defusedxml==0.4.1
+flake8==2.5.1
 Flask==0.10.1
 Flask-Login==0.3.2
 Flask-OpenID==1.2.5
@@ -10,7 +11,10 @@ inflection==0.3.1
 itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23
+mccabe==0.3.1
 pbr==1.8.1
+pep8==1.5.7
+pyflakes==1.0.0
 python-intercom==2.1.1
 python3-openid==3.0.9
 requests==2.8.1
