@@ -5,6 +5,7 @@ flake8==2.5.1
 Flask==0.10.1
 Flask-Login==0.3.2
 Flask-OpenID==1.2.5
+git+https://github.com/mitsuhiko/flask-openid.git
 Flask-SQLAlchemy==2.1
 Flask-WTF==0.12
 inflection==0.3.1
