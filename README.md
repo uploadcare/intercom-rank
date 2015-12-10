@@ -10,7 +10,7 @@ Python 3, Flask, PostgreSQL, SQLAlchemy
 - mkvirtualenv --python=/usr/bin/python3 intercom-rank
 - pip install -r requirements.txt
 - ./run.py
-- go to localhost:5000
+- go to localhost:5000/projects
 
 ### todo
 - projects: list, create actions
