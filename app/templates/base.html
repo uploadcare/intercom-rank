@@ -1,13 +1,13 @@
 <html>
   <head>
     {% if title %}
-    <title>{{ title }} - microblog</title>
+    <title>{{ title }} - intercom-rank</title>
     {% else %}
-    <title>microblog</title>
+    <title>intercom-rank</title>
     {% endif %}
   </head>
   <body>
-    <div>Microblog:
+    <div>intercom-rank:
         <a href="{{ url_for('index') }}">Home</a>
         {% if g.user.is_authenticated %}
         | <a href="{{ url_for('logout') }}">Logout</a>
