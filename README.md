@@ -1,10 +1,11 @@
 # intercom-rank
-intercom + alexa integration
+small web-service providing intercom + alexa integration
+with dashboard for initial config
 
 ### stack
 Python 3, Flask, PostgreSQL, SQLAlchemy
 
-### how to get development environment running
+### Installation & configuration (development)
 - git clone
 - mkvirtualenv --python=/usr/bin/python3 intercom-rank
 - pip install -r requirements.txt
