@@ -18,10 +18,10 @@ def init_request():
     db.create_all()
 
 
-@app.route('/secret')
+@app.route('/projects')
 @login_required
-def secret():
-    return render_template('secret.html')
+def projects():
+    return render_template('projects.html')
 
 
 @app.route('/logout')
