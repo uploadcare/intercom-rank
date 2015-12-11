@@ -1,5 +1,5 @@
 # intercom-rank
-small web-service providing intercom + alexa integration
+small web-service providing intercom + awis integration
 with dashboard for initial config
 
 ### stack
