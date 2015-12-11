@@ -5,12 +5,9 @@
             <form action="{{ url_for('projects') }}" method=post>
                 <p>Add project</p>
                 {{ form.hidden_tag() }}
-
-                {% for field in form %}
-                    <tr>
-                        <th>{{ field.label }}</th>
-                        <td>{{ field }}</td>
-                    </tr>
+                {% for field in form if field.widget.input_type != 'hidden' %}
+                    {{ field.label }}
+                    {{ field }}
                 {% endfor %}
             </form>
 

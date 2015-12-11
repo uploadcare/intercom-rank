@@ -18,8 +18,9 @@ with dashboard for initial config
 git-flow, please.
 
 ### todo
-- projects: all required fields (intercom keys, alexa keys)
-- simple admin dashboard
+- use webhook for intercom user creation
+- check if python-awis package is any good for us
+- (simple) admin dashboard
 - move from sqlite to postgresql before production
 - split controllers and models/bl into different packages?
 - auth via google account
