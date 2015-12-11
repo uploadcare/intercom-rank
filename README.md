@@ -23,4 +23,5 @@ git-flow, please.
 - move from sqlite to postgresql before production
 - split controllers and models/bl into different packages?
 - auth via google account
+- docker
 - tests
