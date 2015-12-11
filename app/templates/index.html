@@ -5,5 +5,17 @@
         <h3>intercom-rank</h3>
     </div>
 </div>
-
+<div class="container">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-info" role="alert">{{ message }}</div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
 {% endblock %}

@@ -2,18 +2,18 @@
 {% block content %}
     <div class="jumbotron">
         <div class="container">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="alert alert-info" role="alert">{{ message }}</div>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="alert alert-info" role="alert">{{ message }}</div>
+                            </div>
                         </div>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
         <div class="container">
             <form action="{{ url_for('projects') }}" method=post>
                 <p>Add project</p>
@@ -26,11 +26,18 @@
             </form>
 
             <p>List of projects
-            <ul>
+            <table>
                 {% for project in projects %}
-                    <li>#{{ project.id }} {{ project.name }}</li>
+                    <tr>
+                        <td>#{{ project.id }}</td>
+                        <td>{{ project.name }}</td>
+                        <td>{{ project.awis_access_id }}</td>
+                        <td>{{ project.awis_secret_access_key }}</td>
+                        <td>{{ project.intercom_app_id }}</td>
+                        <td>{{ project.intercom_app_api_key }}</td>
+                    </tr>
                 {% endfor %}
-            </ul>
+            </table>
             </p>
 
         </div>

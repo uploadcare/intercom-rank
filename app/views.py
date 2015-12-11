@@ -31,7 +31,11 @@ def projects():
             return render_template(template_name, form=form)
         else:
             p = Project(
-                name=form.name.data
+                name=form.name.data,
+                awis_access_id=form.awis_access_id.data,
+                awis_secret_access_key=form.awis_secret_access_key.data,
+                intercom_app_id=form.intercom_app_id.data,
+                intercom_app_api_key=form.intercom_app_api_key.data
             )
             db.session.add(p)
             db.session.commit()
