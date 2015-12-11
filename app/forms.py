@@ -1,8 +1,8 @@
 from flask.ext.wtf import Form
-from wtforms import StringField, BooleanField
+from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 
 
-class LoginForm(Form):
-    openid = StringField('openid', validators=[DataRequired()])
-    remember_me = BooleanField('remember_me', default=False)
+class ProjectForm(Form):
+    name = StringField('name', validators=[DataRequired()])
+    submit = SubmitField('Add')

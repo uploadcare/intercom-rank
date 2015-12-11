@@ -2,6 +2,7 @@ from flask import render_template, request, abort, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, login_required
 
 from . import app, db, lm
+from app.forms import ProjectForm
 from .models import User, Project
 
 
@@ -18,11 +19,26 @@ def init_request():
     db.create_all()
 
 
-@app.route('/projects')
+@app.route('/projects', methods=['GET', 'POST'])
 @login_required
 def projects():
-    ctx = {'projects': Project.query.all()}
-    return render_template('projects.html', **ctx)
+    template_name = 'projects.html'
+    form = ProjectForm()
+
+    if request.method == 'POST':
+        if not form.validate():
+            flash('All fields are required.')
+            return render_template(template_name, form=form)
+        else:
+            p = Project(
+                name=form.name.data
+            )
+            db.session.add(p)
+            db.session.commit()
+            return redirect(url_for('projects'))
+
+    elif request.method == 'GET':
+        return render_template(template_name, form=form, projects=Project.query.all())
 
 
 @app.route('/logout')

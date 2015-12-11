@@ -18,7 +18,7 @@ with dashboard for initial config
 git-flow, please.
 
 ### todo
-- projects: create action (WTForms)
+- projects: all required fields (intercom keys, alexa keys)
 - simple admin dashboard
 - move from sqlite to postgresql before production
 - split controllers and models/bl into different packages?

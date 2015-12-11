@@ -1,13 +1,26 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="jumbotron">
-    <div class="container">
-        <h3>List of projects</h3>
-        <ul>
-            {% for project in projects %}
-            <li>#{{ project.id }} {{ project.name }}</li>
-            {% endfor %}
-        </ul>
+    <div class="jumbotron">
+        <div class="container">
+            <form action="{{ url_for('projects') }}" method=post>
+                <p>Add project</p>
+                {{ form.hidden_tag() }}
+
+                {{ form.name.label }}
+                {{ form.name }}
+
+                {{ form.submit }}
+            </form>
+
+
+            <p>List of projects
+            <ul>
+                {% for project in projects %}
+                    <li>#{{ project.id }} {{ project.name }}</li>
+                {% endfor %}
+            </ul>
+            </p>
+
+        </div>
     </div>
-</div>
 {% endblock %}
