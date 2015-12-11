@@ -19,6 +19,7 @@ git-flow, please.
 
 ### todo
 - use webhook for intercom user creation
+- deploy to heroku in order to test webhook
 - check if python-awis package is any good for us
 - (simple) admin dashboard
 - move from sqlite to postgresql before production
