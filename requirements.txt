@@ -1,5 +1,4 @@
 certifi==2015.11.20.1
-decorator==4.0.5
 defusedxml==0.4.1
 flake8==2.5.1
 Flask==0.10.1

@@ -7,8 +7,9 @@ with dashboard for initial config
 - PostgreSQL via SQLAlchemy
 
 ### Installation & configuration (development)
-- git clone
-- mkvirtualenv --python=/usr/bin/python3 intercom-rank
+- pip install virtualenvwrapper
+- git clone git@github.com:uploadcare/intercom-rank.git
+- mkvirtualenv --python=/usr/local/bin/python3 intercom-rank
 - pip install -r requirements.txt
 - ./run.py
 - go to localhost:5000/projects
