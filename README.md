@@ -5,6 +5,7 @@ with dashboard for initial config
 ### stack
 - Python 3, Flask (Jinja2, WTForms)
 - PostgreSQL via SQLAlchemy
+- Heroku + gunicorn
 
 ### Installation & configuration (development)
 - pip install virtualenvwrapper
@@ -18,8 +19,8 @@ with dashboard for initial config
 git-flow, please.
 
 ### todo
-- use webhook for intercom user creation
 - deploy to heroku in order to test webhook
+- use webhook for intercom user creation
 - check if python-awis package is any good for us
 - (simple) admin dashboard
 - move from sqlite to postgresql before production
