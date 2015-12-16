@@ -21,7 +21,6 @@ with dashboard for initial config
 git-flow, please.
 
 ### todo
-- deploy to heroku in order to test webhook
 - use webhook for intercom user creation
 - check if python-awis package is any good for us
 - (simple) admin dashboard
