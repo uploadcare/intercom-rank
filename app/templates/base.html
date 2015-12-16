@@ -25,11 +25,11 @@
             <ul class="nav navbar-nav">
                 <li><a href="/">Home</a></li>
                 {% if current_user.is_authenticated %}
-                <li><a href="/projects">Projects</a></li>
-                <li><a href="/logout">Logout</a></li>
+                    <li><a href="/projects">Projects</a></li>
+                    <li><a href="/logout">Logout</a></li>
                 {% else %}
-                <li><a href="/login">Login</a></li>
-                <li><a href="/register">Register</a></li>
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/register">Register</a></li>
                 {% endif %}
             </ul>
         </div>
@@ -37,5 +37,45 @@
     </div>
 </nav>
 {% block content %}{% endblock %}
+<script>
+    window.intercomSettings = {
+        app_id: "vy1d8gij",
+        name: "Nikola Tesla", // Full name
+        email: "nikola@example.com", // Email address
+        created_at: 1312182000 // Signup date as a Unix timestamp
+    };
+</script>
+<script>(function () {
+    var w = window;
+    var ic = w.Intercom;
+    if (typeof ic === "function") {
+        ic('reattach_activator');
+        ic('update', intercomSettings);
+    } else {
+        var d = document;
+        var i = function () {
+            i.c(arguments)
+        };
+        i.q = [];
+        i.c = function (args) {
+            i.q.push(args)
+        };
+        w.Intercom = i;
+        function l() {
+            var s = d.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://widget.intercom.io/widget/vy1d8gij';
+            var x = d.getElementsByTagName('script')[0];
+            x.parentNode.insertBefore(s, x);
+        }
+
+        if (w.attachEvent) {
+            w.attachEvent('onload', l);
+        } else {
+            w.addEventListener('load', l, false);
+        }
+    }
+})()</script>
 </body>
 </html>
