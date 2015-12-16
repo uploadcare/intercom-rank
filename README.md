@@ -14,8 +14,8 @@ with dashboard for initial config
 - mkvirtualenv --python=/usr/local/bin/python3 intercom-rank
 - pip install -r requirements.txt
 - createdb -h localhost -p 5432 -U postgres intercom-rank_dev
-- ./run.py
-- go to localhost:5000/projects
+- heroku local web (better to do this in other console)
+- heroku open
 
 ### How to contribute
 git-flow, please.
