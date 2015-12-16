@@ -1,4 +1,4 @@
-def subscribe():
+def create_webhook():
     """
     """
     pass

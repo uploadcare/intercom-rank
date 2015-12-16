@@ -23,12 +23,13 @@ with dashboard for initial config
 - git-flow, please. http://danielkummer.github.io/git-flow-cheatsheet/
 
 ### todo
-- use webhook for intercom user creation
+- bl-method for webhook creation on user-creation (intercom)
 - check if python-awis package is any good for us
 - (simple) admin dashboard
 - split controllers and models/bl into different packages?
 - auth via google account
 - config (local, dev, prod, ..) management
+- move these todo from readme.md to github issues
 - move from gunicorn to waitress?..
 - move from heroku to digitalocean?..
 - docker-compose
