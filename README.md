@@ -8,6 +8,7 @@ with dashboard for initial config
 - Heroku + gunicorn
 
 ### Installation & configuration (development)
+- brew install postgresql
 - pip install virtualenvwrapper
 - git clone git@github.com:uploadcare/intercom-rank.git
 - mkvirtualenv --python=/usr/local/bin/python3 intercom-rank
