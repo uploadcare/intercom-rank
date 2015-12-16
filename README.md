@@ -14,6 +14,8 @@ with dashboard for initial config
 - mkvirtualenv --python=/usr/local/bin/python3 intercom-rank
 - pip install -r requirements.txt
 - createdb -h localhost -p 5432 -U postgres intercom-rank_dev
+- heroku addons:create heroku-postgresql:hobby-dev
+- heroku pg:promote HEROKU_POSTGRESQL_COLOR_URL
 - heroku local web (better to do this in other console)
 - heroku open
 

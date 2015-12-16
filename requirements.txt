@@ -34,6 +34,7 @@ python-awis==1.2.1
 
 # deploy
 gunicorn==19.4.1
+flask-heroku==0.1.9
 
 # utils & tools
 flake8==2.5.1
