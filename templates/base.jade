@@ -1,0 +1,54 @@
+doctype html
+html.uk-height-1-1.uk-notouch
+  head
+    meta(charset="utf-8")
+    meta(http-equiv="X-UA-Compatible", content="IE=edge")
+
+    title
+        block title
+
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.24.3/css/uikit.min.css")
+
+    block head
+      {# TODO: move it into styles.css #}
+      style.
+        .login-form-title {
+          display: block;
+          background-color: #9BE2FD;
+          margin: -15px -15px 15px -15px;
+          padding: 5px;
+        }
+
+  body(class="{{ body_class or 'uk-height-1-1'}}")
+    block header
+      nav.uk-navbar.uk-navbar-attached
+        a.uk-navbar-brand(href="/") Dashboard
+
+        .uk-navbar-content
+          a.uk-button.uk-button-primary.uk-button-small(href="{{ url_for('accounts.project_add') }}")
+            | Add project
+
+        .uk-navbar-flip
+          ul.uk-navbar-nav
+            li
+              a(href="{{ url_for('user.logout') }}") Logout
+
+    div.uk-height-1-1(style="padding:15px;")
+      block messages
+        - with messages = get_flashed_messages(with_categories=true)
+          - if messages
+            - for category, message in messages
+              div(class="uk-alert uk-alert-{{ category }}", data-uk-alert)
+                a.uk-alert-close.uk-close(href="#")
+                | {{ message|safe }}
+
+      block body
+
+      block footer
+        .uk-text-center(style="border-top:1px solid #eee; position:absolute; width:100%; bottom:0;")
+          p.uk-text-muted.uk-text-small
+            | 2016 &copy; Uploadcare
+
+    block js
+      script(src="https://code.jquery.com/jquery-2.1.4.min.js")
+      script(src="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.24.3/js/uikit.min.js")

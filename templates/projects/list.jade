@@ -1,0 +1,36 @@
+extends "base.jade"
+
+
+block body
+  table.uk-table.uk-table-striped(style="border:1px solid #eee;")
+    thead
+      tr
+        th #
+        th Project title
+        th Intercom app_id
+        th AWS access_id
+        th Updated
+        td &nbsp;
+
+    tbody
+      - for project in projects
+        tr
+          td {{ loop.index }}
+          td
+            a(href="{{ url_for('accounts.project_update', pk=project.id) }}")
+              | {{ project.title }}
+          td {{ project.intercom_app_id }}
+          td {{ project.aws_access_id }}
+          td {{ project.updated_at.strftime('%Y-%m-%d %H:%M') }}
+          td
+            form(action="{{ url_for('accounts.project_remove', pk=project.id) }}", method="POST")
+              input(type="hidden", name="csrf_token", value="{{ csrf_token() }}")
+              button.uk-button-link.uk-text-danger(href="#")
+                i.uk-icon-remove
+
+        - else
+
+          tr
+            td(colspan="6")
+              p.uk-text-primary.uk-margin-remove
+                | You don't create any projects yet.

@@ -1,0 +1,24 @@
+extends "base.jade"
+- from "macros.jade" import render_field
+
+block body
+  .uk-text-center.uk-height-1-1
+    .uk-align-center(style="width:400px; margin-top:20px;")
+      form.uk-panel.uk-panel-box.uk-form(method="POST", action=".")
+
+        - if project
+          h2.login-form-title Update a project
+        - else
+          h2.login-form-title Add a new project
+
+        {{ form.csrf_token }}
+
+        {{ render_field(form.title) }}
+        {{ render_field(form.intercom_app_id) }}
+        {{ render_field(form.intercom_api_key) }}
+        {{ render_field(form.aws_access_id) }}
+        {{ render_field(form.aws_secret_access_key) }}
+
+        br
+
+        {{ form.submit(class="uk-width-1-1 uk-button uk-button-primary uk-button-large") }}

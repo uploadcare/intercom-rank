@@ -1,0 +1,10 @@
+- macro render_field(field, placeholder=None)
+  - set field_cls = 'uk-width-1-1 uk-form-large'
+
+  - if field.errors
+      - set field_cls = field_cls + ' uk-form-danger'
+
+  .uk-form-row
+    {{ field(placeholder=placeholder or field.label.text|capitalize, class=field_cls) }}
+    p.uk-text-danger.uk-text-small(style="margin:0; text-align:left;")
+      {{ field.errors|join(' ') }}&nbsp;

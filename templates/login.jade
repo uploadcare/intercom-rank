@@ -1,0 +1,23 @@
+extends "base.jade"
+- from "macros.jade" import render_field
+
+
+block header
+
+
+block body
+  .uk-vertical-align.uk-text-center.uk-height-1-1
+    .uk-vertical-align-middle(style="width:250px;")
+      form.uk-panel.uk-panel-box.uk-form(method="POST", action="{{ url_for('user.login') }}")
+        h2.login-form-title Authentication
+
+        {{ form.csrf_token }}
+        {{ form.next }}
+
+        {{ render_field(form.email, 'Email') }}
+        {{ render_field(form.password, 'Password') }}
+
+        br
+
+        {{ form.submit(class="uk-width-1-1 uk-button uk-button-primary", value="Enter") }}
+
