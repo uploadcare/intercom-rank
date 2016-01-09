@@ -5,7 +5,9 @@ from flask.ext.login import current_user
 from intercom import Intercom
 
 from app import db
+from app.accounts.tasks import handle_intercom_users
 from common import models
+from common.intercom import IntercomContextManager
 
 
 class User(db.Model, UserMixin, models.BaseModelMixin):
@@ -57,17 +59,10 @@ class Project(db.Model, models.BaseModelMixin, models.CreateAndModifyMixin):
     def save(self):
         super(Project, self).save()
         # TODO: use signals
+        handle_intercom_users.delay(self.id)
 
     def use_intercom_credentials(project):
-        """ Changing of global attributes.
+        """ Initiate contextmanager for working with intercom.
         """
-        # WARNING
-        class Wrapper:
-            def __enter__(self):
-                Intercom.app_id = project.intercom_app_id
-                Intercom.app_api_key = project.intercom_api_key
-
-            def __exit__(self, *args):
-                Intercom.app_id = Intercom.app_api_key = None
-
-        return Wrapper()
+        return IntercomContextManager(project.intercom_app_id,
+                                      project.intercom_api_key)

@@ -9,7 +9,6 @@ from flask.ext.login import current_user
 from app import app, csrf
 from app.accounts.models import User, Project
 from app.accounts.forms import ProjectForm
-from app.accounts import utils
 from common.decorators import render_to
 
 

@@ -21,3 +21,6 @@ ADMIN_USER = {
     'email': os.environ.get('RANKER_ADMIN_EMAIL', 'admin@admin.ru'),
     'password': os.environ.get('RANKER_ADMIN_PASSWORD', '123'),
 }
+
+CELERY_BROKER_URL = 'redis://localhost:6379/9'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/9'

@@ -6,14 +6,15 @@ from flask_script import Manager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CsrfProtect
+from celery import Celery
 
-
-template_folder = os.path.join(
+PROJECT_ROOT = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
-    '..',
-    'templates')
+    '..')
 
-app = Flask(__name__, template_folder=template_folder)
+TEMPLATES_FOLDER = os.path.join(PROJECT_ROOT, 'templates')
+
+app = Flask(__name__, template_folder=TEMPLATES_FOLDER)
 
 settings = os.environ.get('RANKER_SETTINGS_FILE', 'settings.py')
 app.config.from_pyfile(settings)
@@ -25,6 +26,12 @@ migrate = Migrate(app, db)
 mail = Mail(app)
 
 csrf = CsrfProtect(app)
+
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
+
+with open(os.path.join(PROJECT_ROOT, 'free.emails'), 'r') as f:
+    FREE_EMAILS_SET = set(r.strip() for r in f.readlines())
 
 
 def setup():
