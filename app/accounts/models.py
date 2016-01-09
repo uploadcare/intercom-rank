@@ -1,5 +1,8 @@
+import uuid
+
 from flask_user import UserMixin
 from flask.ext.login import current_user
+from intercom import Intercom
 
 from app import db
 from common import models
@@ -35,6 +38,7 @@ class Project(db.Model, models.BaseModelMixin, models.CreateAndModifyMixin):
 
     intercom_app_id = db.Column(db.Unicode(255), nullable=False, unique=True)
     intercom_api_key = db.Column(db.Unicode(255), nullable=False)
+    intercom_webhooks_internal_secret = db.Column(db.Unicode(255))
 
     aws_access_id = db.Column(db.Unicode(255), nullable=False, unique=True)
     aws_secret_access_key = db.Column(db.Unicode(255), nullable=False)
@@ -49,3 +53,21 @@ class Project(db.Model, models.BaseModelMixin, models.CreateAndModifyMixin):
     @classmethod
     def get_for_current_user_or_404(cls, pk):
         return cls.get_or_404(cls.user_id == current_user.id, cls.id == pk)
+
+    def save(self):
+        super(Project, self).save()
+        # TODO: use signals
+
+    def use_intercom_credentials(project):
+        """ Changing of global attributes.
+        """
+        # WARNING
+        class Wrapper:
+            def __enter__(self):
+                Intercom.app_id = project.intercom_app_id
+                Intercom.app_api_key = project.intercom_api_key
+
+            def __exit__(self, *args):
+                Intercom.app_id = Intercom.app_api_key = None
+
+        return Wrapper()

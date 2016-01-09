@@ -1,16 +1,20 @@
+import json
+import logging
 from flask import (request, Blueprint, abort, render_template, redirect,
                    url_for, flash)
 from flask.views import MethodView
 from flask.ext.user import login_required
 from flask.ext.login import current_user
 
-from app import app
+from app import app, csrf
 from app.accounts.models import User, Project
 from app.accounts.forms import ProjectForm
+from app.accounts import utils
 from common.decorators import render_to
 
 
 accounts_app = Blueprint('accounts', __name__)
+logger = logging.getLogger(__name__)
 
 
 @accounts_app.route('/')
@@ -38,9 +42,20 @@ def project_add():
 
     if form.validate_on_submit():
         project = Project()
+
         form.populate_obj(project)
+        try:
+            form.create_subsciption_for(project)
+        except Exception:
+            logger.exception('Intercom subscription errror')
+            flash('Can\'t create subscription on Intercom\'s events. '
+                  'Probably you provide an incorrect APP_ID or API_KEY.',
+                  'danger')
+            return locals()
+
         project.user_id = current_user.id
         project.save()
+
         flash('Project has been added', 'success')
         return redirect(url_for('accounts.projects_list'))
 
@@ -72,3 +87,15 @@ def project_remove(pk):
     project.delete()
     flash('Project has been removed', 'success')
     return redirect(url_for('accounts.projects_list'))
+
+
+@csrf.exempt
+@accounts_app.route('/projects/hook/<internal_secret>/', methods=('POST',))
+def handle_intercom_hooks(internal_secret):
+    project = Project.query.filter(
+        Project.intercom_webhooks_internal_secret == internal_secret).first()
+
+    if not project:
+        raise abort(400)
+
+    return json.dumps(request.json)

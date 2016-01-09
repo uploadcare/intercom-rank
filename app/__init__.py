@@ -24,7 +24,7 @@ manager = Manager(app)
 migrate = Migrate(app, db)
 mail = Mail(app)
 
-CsrfProtect(app)
+csrf = CsrfProtect(app)
 
 
 def setup():

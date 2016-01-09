@@ -1,6 +1,7 @@
 import os
 
 DEBUG = True
+SERVER_NAME = 'localhost:8000'
 
 SECRET_KEY = \
     b'\x84\x92\x7f\xa4\x07\xef`\xb9\xd7\xa0)jA\xe9\xcev1\xdeG\xe3\xfb(]\x80'
