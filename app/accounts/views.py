@@ -1,16 +1,16 @@
 import json
 import logging
+
 from flask import (request, Blueprint, abort, render_template, redirect,
                    url_for, flash)
 from flask.views import MethodView
 from flask.ext.user import login_required
 from flask.ext.login import current_user
 
-
 from common.decorators import render_to
 from app import app, csrf
 from app.accounts.models import User, Project
-from app.accounts.forms import ProjectForm
+from app.accounts.forms import ProjectForm, ProjectChnageForm
 from app.accounts.utils import transform_email_if_useful
 from app.accounts.tasks import (fetch_and_update_information,
                                 handle_intercom_users)
@@ -67,7 +67,7 @@ def project_add():
         if app.config['AWIS_USER_LIMIT_FOR_PROJECT'] > 0:
             msg = ('%s With limit is %s valid emails per project '
                    'for purpose of debugging'
-                   ) % app.config['AWIS_USER_LIMIT_FOR_PROJECT']
+                   ) % (msg, app.config['AWIS_USER_LIMIT_FOR_PROJECT'])
 
         flash(msg, 'success')
 
@@ -82,14 +82,16 @@ def project_add():
 def project_update(pk):
     project = Project.get_for_current_user_or_404(pk)
 
-    form = ProjectForm(obj=project)
+    form = ProjectChnageForm(obj=project)
 
     if form.validate_on_submit():
         form.populate_obj(project)
-        project.user_id = current_user.id
         project.save()
         flash('Project has been updated', 'success')
         return redirect(url_for('accounts.projects_list'))
+
+    flash('For are changing approved keys, '
+          'please create a new project instead.', 'warning')
 
     return locals()
 

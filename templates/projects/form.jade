@@ -1,6 +1,13 @@
 extends "base.jade"
 - from "macros.jade" import render_field
 
+
+- macro render_fake_field(data):
+  .uk-form-row
+    p(style="text-align:left; padding:10px 5px; border:1px solid #eee")
+      {{ data }}
+
+
 block body
   .uk-text-center.uk-height-1-1
     .uk-align-center(style="width:400px; margin-top:20px;")
@@ -14,10 +21,25 @@ block body
         {{ form.csrf_token }}
 
         {{ render_field(form.title) }}
-        {{ render_field(form.intercom_app_id) }}
-        {{ render_field(form.intercom_api_key) }}
-        {{ render_field(form.aws_access_id) }}
-        {{ render_field(form.aws_secret_access_key) }}
+
+        - if project
+          legend Intercom
+          {{ render_fake_field(project.intercom_app_id) }}
+          {{ render_fake_field(project.intercom_api_key) }}
+
+          legend AWIS
+          {{ render_fake_field(project.aws_access_id) }}
+          {{ render_fake_field(project.aws_secret_access_key) }}
+
+        - else
+
+          legend Intercom
+          {{ render_field(form.intercom_app_id) }}
+          {{ render_field(form.intercom_api_key) }}
+
+          legend AWIS
+          {{ render_field(form.aws_access_id) }}
+          {{ render_field(form.aws_secret_access_key) }}
 
         br
 

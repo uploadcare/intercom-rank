@@ -24,13 +24,21 @@ class ProjectForm(Form):
     submit = SubmitField('Save')
 
     def create_subsciption_for(self, project):
+        # TODO: do it in bacground and repeat if connection lost
         with project.use_intercom_credentials():
             project.intercom_webhooks_internal_secret = uuid.uuid4()
-            # TODO: sign hooks. Probably need to update lib
-            Subscription.create(
+
+            sub = Subscription.create(
                 service_type='web',
                 url=url_for(
                     'accounts.handle_intercom_hooks',
                     internal_secret=project.intercom_webhooks_internal_secret,
                     _external=True),
                 topics=['user.created'])
+
+            project.intercom_subscription_id = sub.id
+
+
+class ProjectChnageForm(Form):
+    title = default_string_field('title')
+    submit = SubmitField('Save')
