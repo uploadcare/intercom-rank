@@ -22,7 +22,7 @@ def handle_intercom_users(project_id):
     from app.accounts.models import Project
 
     # Maximum items per request for Intercom's bulk update
-    CHUNK_SIZE = 10
+    CHUNK_SIZE = 100
 
     project = Project.query.filter(Project.id == project_id).first()
     if not project:
@@ -30,18 +30,11 @@ def handle_intercom_users(project_id):
         return
 
     def _fetch_users():
+        counter = 0
         with project.use_intercom_credentials() as intercom:
-            for i, user in enumerate(intercom.users()):
+            for user in intercom.users():
                 if not user.email:
                     continue
-
-                # TODO: remove this code in production
-                if (
-                    app.config['AWIS_USER_LIMIT_FOR_PROJECT'] > 0
-                    and i > app.config['AWIS_USER_LIMIT_FOR_PROJECT']
-                ):
-                    logger.info('Limit for project has been reached.')
-                    break
 
                 logger.info('Handle email: %s', user.email)
 
@@ -52,6 +45,15 @@ def handle_intercom_users(project_id):
                     logger.info('Unuseful email. Skip.')
                     continue
 
+                # TODO: remove this code in production
+                if (
+                    app.config['AWIS_USER_LIMIT_FOR_PROJECT'] > 0
+                    and counter > app.config['AWIS_USER_LIMIT_FOR_PROJECT']
+                ):
+                    logger.info('Limit for project has been reached.')
+                    break
+
+                counter += 1
                 yield user_email
 
     try:
