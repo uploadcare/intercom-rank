@@ -49,55 +49,71 @@ def handle_intercom_users(project_id):
 
 @celery.task
 def fetch_and_update_information(emails, project_id):
-    # Maximum items per request for AWIS
-    CHUNK_SIZE = 5
-
-    # {domain.com: users_id, ...}
-    domains_map = dict(e.split('@')[::-1] for e in emails)
-
-    tasks = [awis_info.s(batch) for batch in
-             ichunks(CHUNK_SIZE, domains_map.keys())]
-    callback = update_intercom_users.s(project_id=project_id,
-                                       domains_map=domains_map)
-
-    chord(tasks)(callback)
-
-
-@celery.task
-def awis_info(domains):
-    # NOTE: write real code
-    logger.info('Make AWIS request')
-    logger.info(domains)
-
-    # ========> TODO: remove this
-    import time; time.sleep(1)
-    import random, string
-
-    # Returns data for user_id
-    result = dict.fromkeys(domains)
-
-    for d in domains:
-        result[d] = {'AWIS_ATTR': ''.join(
-            random.sample(string.ascii_letters, 5))}
-
-    return result
-
-
-@celery.task
-def update_intercom_users(data, project_id, domains_map):
     from app.accounts.models import Project
-
-    # Make list: [{user_id: 12, other_data}, ...]
-    result = [
-        dict(data, user_id=domains_map[domain])
-        for row in data
-        for domain, data in row.items()
-    ]
 
     project = Project.query.filter(Project.id == project_id).first()
     if not project:
         logger.error('Project with id == %s does not exist', project_id)
         return
 
+    # {domain.com: users_id, ...}
+    domains_map = dict(e.split('@')[::-1] for e in emails)
+
+    with project.use_awis_credentials() as awis:
+        awis.url_info(domains_map.keys(),
+                      'UsageStats', 'SiteData', 'Language', 'RankByCountry')
+
+        for domain, node, result_row in awis.iter_results('ContentData'):
+            result_row['lang'] = awis.get_value(node, 'Language/Locale')
+            result_row['site_data'] = {
+                'title': awis.get_value(
+                    node, 'SiteData/Title', default='-'),
+                'description': awis.get_value(
+                    node, 'SiteData/Description', default='-'),
+                'online_since': awis.get_value(
+                    node, 'SiteData/OnlineSince', default='-'),
+            }
+
+        for domain, node, result_row in awis.iter_results('TrafficData'):
+            if result_row['lang']:
+                result_row['country_rank'] = awis.get_value(
+                    node, 'Country[@Code="{0}"]Rank'.format(
+                        result_row['lang'].upper()))
+
+            # Try to determinate the best rank over all countries by raw select
+            if result_row['country_rank'] is None:
+                result_row['country_rank'] = min([
+                    int(e.text) for e in
+                    node.findall('.//awis:Country/awis:Rank',
+                                 awis.api.NS_PREFIXES)
+                    if e.text] or [None])
+
+            result_row['rank_value'] = awis.get_value(
+                node, 'Reach/Rank/Value')
+
+            result_row['per_million'] = awis.get_value(
+                node, 'Reach/PerMillion/Value')
+
+            result_row['page_views_per_million'] = awis.get_value(
+                node, 'PageViews/PerMillion/Value')
+
+        notes = []
+        users = []
+
+        for domain, data in awis.session_result.items():
+            user_id = domains_map[domain]
+
+            # Create note
+            notes.append(dict(
+                user_id=user_id,
+                body='Title: {title}\n'
+                     'Descr: {description}\n'
+                     'Since: {online_since}\n'.format(**data.pop('site_data'))
+            ))
+
+            # Put user to bulk update
+            users.append(dict(user_id=user_id, custom_attributes=data))
+
     with project.use_intercom_credentials() as intercom:
-        intercom.users_bulk_update(result)
+        intercom.users_bulk_update(users, prefix='AWIS')
+        intercom.notes_bulk_create(notes)

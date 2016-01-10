@@ -8,6 +8,7 @@ from app import db
 from app.accounts.tasks import handle_intercom_users
 from common import models
 from common.intercom import IntercomContextManager
+from common.awis import AWISContextManager
 
 
 class User(db.Model, UserMixin, models.BaseModelMixin):
@@ -62,7 +63,13 @@ class Project(db.Model, models.BaseModelMixin, models.CreateAndModifyMixin):
         handle_intercom_users.delay(self.id)
 
     def use_intercom_credentials(project):
-        """ Initiate contextmanager for working with intercom.
+        """ Initiate contextmanager for working with Intercom.
         """
         return IntercomContextManager(project.intercom_app_id,
                                       project.intercom_api_key)
+
+    def use_awis_credentials(project):
+        """ Initiate contextmanager for working with AWIS.
+        """
+        return AWISContextManager(project.aws_access_id,
+                                  project.aws_secret_access_key)

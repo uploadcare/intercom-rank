@@ -28,3 +28,6 @@ funcy==1.6
 python-intercom==2.1.1
 celery==3.1.19
 redis==2.10.5
+
+
+-e git+https://github.com/zerc/python-awis.git@9b5bfca#egg=python-awis

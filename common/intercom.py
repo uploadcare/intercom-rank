@@ -2,7 +2,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
-from intercom import Intercom, User
+from intercom import Intercom, User, Note
 
 
 logger = logging.getLogger(__name__)
@@ -12,8 +12,9 @@ TIMEOUT = 30
 
 
 class IntercomContextManager:
-    def __init__(self, app_id, api_key):
+    def __init__(self, app_id, api_key, workers_count=10):
         self.auth = (app_id, api_key)
+        self.workers_count = workers_count
 
     def __enter__(self):
         Intercom.app_id, Intercom.app_api_key = self.auth
@@ -23,16 +24,35 @@ class IntercomContextManager:
         Intercom.app_id = Intercom.app_api_key = None
         # TODO: handle exceptions
 
-    def users_bulk_update(self, data):
-        logger.info('Intercom bulk update.')
+    def users_bulk_update(self, data, prefix=None):
+        logger.info('Intercom Users bulk update.')
         logger.info(data)
         # return self._real_bulk_update(data)
 
-        def update(row):
+        def update(row, prefix):
             user_id = row.pop('user_id')
-            User.create(user_id=user_id, custom_attributes=row)
+            custom_attributes = row.pop('custom_attributes')
 
-        with ThreadPoolExecutor(5) as executor:
+            if prefix and custom_attributes:
+                custom_attributes = {'_'.join((prefix, k)): v
+                                     for k, v in custom_attributes.items()}
+
+            User.create(user_id=user_id,
+                        custom_attributes=custom_attributes,
+                        **row)
+
+        with ThreadPoolExecutor(self.workers_count) as executor:
+            for row in data:
+                executor.submit(update, row, prefix)
+
+    def notes_bulk_create(self, data):
+        logger.info('Intercom Notes bulk update.')
+        logger.info(data)
+
+        def update(row):
+            return Note.create(**row)
+
+        with ThreadPoolExecutor(self.workers_count) as executor:
             for _ in executor.map(update, data):
                 pass
 
