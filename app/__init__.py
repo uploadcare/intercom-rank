@@ -36,7 +36,7 @@ with open(os.path.join(PROJECT_ROOT, 'free.emails'), 'r') as f:
 
 def setup():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-        'RANKER_DATABASE_URI',
+        'DATABASE_URL',
         'postgres://{user}:{password}@{host}/{name}'.format(
             **app.config['DATABASE'])
         )

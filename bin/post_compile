@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# set terminal to UTF8 (otherwise `gem install foreman` fails)
+export LANG=en_CA.UTF-8
+
+# set up ruby env
+mkdir .ruby-gems
+export GEM_HOME=$PWD/.ruby-gems
+export PATH=$PATH:$PWD/.ruby-gems/bin
+
+# install foreman
+gem install foreman

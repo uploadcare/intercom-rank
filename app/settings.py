@@ -1,7 +1,7 @@
 import os
 
 DEBUG = True
-SERVER_NAME = 'localhost:8000'
+# SERVER_NAME = 'localhost:8000'
 
 SECRET_KEY = \
     b'\x84\x92\x7f\xa4\x07\xef`\xb9\xd7\xa0)jA\xe9\xcev1\xdeG\xe3\xfb(]\x80'
@@ -22,5 +22,5 @@ ADMIN_USER = {
     'password': os.environ.get('RANKER_ADMIN_PASSWORD', '123'),
 }
 
-CELERY_BROKER_URL = 'redis://localhost:6379/9'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/9'
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/9')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379/9')
