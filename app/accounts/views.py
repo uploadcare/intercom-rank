@@ -6,10 +6,13 @@ from flask.views import MethodView
 from flask.ext.user import login_required
 from flask.ext.login import current_user
 
+
+from common.decorators import render_to
 from app import app, csrf
 from app.accounts.models import User, Project
 from app.accounts.forms import ProjectForm
-from common.decorators import render_to
+from app.accounts.utils import transform_email_if_useful
+from app.accounts.tasks import fetch_and_update_information
 
 
 accounts_app = Blueprint('accounts', __name__)
@@ -97,4 +100,10 @@ def handle_intercom_hooks(internal_secret):
     if not project:
         raise abort(400)
 
-    return json.dumps(request.json)
+    user = request.json['data']['item']
+    user_email = transform_email_if_useful(user['email'], user['user_id'])
+
+    if user_email:
+        fetch_and_update_information.delay([user_email], project.id)
+
+    return json.dumps({'status': 'ok'})

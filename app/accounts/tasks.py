@@ -7,6 +7,7 @@ from funcy.seqs import ichunks
 from celery import chord
 
 from app import celery, FREE_EMAILS_SET
+from app.accounts.utils import transform_email_if_useful
 
 
 logger = logging.getLogger(__name__)
@@ -31,14 +32,19 @@ def handle_intercom_users(project_id):
     def _fetch_users():
         with project.use_intercom_credentials() as intercom:
             for user in intercom.users():
-                email_domain = (user.email or '').split('@')[-1]
-
-                if not email_domain or email_domain in FREE_EMAILS_SET:
+                if not user.email:
                     continue
 
                 logger.info('Handle email: %s', user.email)
 
-                yield '{}@{}'.format(user.user_id, email_domain)
+                user_email = transform_email_if_useful(user.email,
+                                                       user.user_id)
+
+                if not user_email:
+                    logger.info('Unuseful email. Skip.')
+                    continue
+
+                yield user_email
 
     try:
         for emails in ichunks(CHUNK_SIZE, _fetch_users()):

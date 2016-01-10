@@ -1,10 +1,13 @@
 import os
 
-DEBUG = True
-# SERVER_NAME = 'localhost:8000'
+ENVIRON = os.environ.get('ENVIRON', 'LOCAL')
 
-SECRET_KEY = \
+DEBUG = ENVIRON == 'LOCAL'
+
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
     b'\x84\x92\x7f\xa4\x07\xef`\xb9\xd7\xa0)jA\xe9\xcev1\xdeG\xe3\xfb(]\x80'
+)
 
 
 DATABASE = {
@@ -14,7 +17,7 @@ DATABASE = {
     'password': '',
 }
 
-SQLALCHEMY_TRACK_MODIFICATIONS = True
+SQLALCHEMY_TRACK_MODIFICATIONS = DEBUG
 
 
 ADMIN_USER = {
