@@ -5,7 +5,6 @@ from flask.ext.login import current_user
 from intercom import Intercom
 
 from app import db
-from app.accounts.tasks import handle_intercom_users
 from common import models
 from common.intercom import IntercomContextManager
 from common.awis import AWISContextManager
@@ -56,11 +55,6 @@ class Project(db.Model, models.BaseModelMixin, models.CreateAndModifyMixin):
     @classmethod
     def get_for_current_user_or_404(cls, pk):
         return cls.get_or_404(cls.user_id == current_user.id, cls.id == pk)
-
-    def save(self):
-        super(Project, self).save()
-        # TODO: use signals
-        handle_intercom_users.delay(self.id)
 
     def use_intercom_credentials(project):
         """ Initiate contextmanager for working with Intercom.

@@ -12,7 +12,8 @@ from app import app, csrf
 from app.accounts.models import User, Project
 from app.accounts.forms import ProjectForm
 from app.accounts.utils import transform_email_if_useful
-from app.accounts.tasks import fetch_and_update_information
+from app.accounts.tasks import (fetch_and_update_information,
+                                handle_intercom_users)
 
 
 accounts_app = Blueprint('accounts', __name__)
@@ -57,8 +58,19 @@ def project_add():
 
         project.user_id = current_user.id
         project.save()
+        handle_intercom_users(project.id)
 
         flash('Project has been added', 'success')
+
+        msg = 'Job for import existing users has been started.'
+
+        if app.config['AWIS_USER_LIMIT_FOR_PROJECT'] > 0:
+            msg = ('%s With limit is %s valid emails per project '
+                   'for purpose of debugging'
+                   ) % app.config['AWIS_USER_LIMIT_FOR_PROJECT']
+
+        flash(msg, 'success')
+
         return redirect(url_for('accounts.projects_list'))
 
     return locals()

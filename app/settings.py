@@ -27,3 +27,5 @@ ADMIN_USER = {
 
 CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/9')
 CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379/9')
+
+AWIS_USER_LIMIT_FOR_PROJECT = 30

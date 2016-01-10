@@ -6,7 +6,7 @@ from requests.exceptions import ReadTimeout, ConnectionError
 from funcy.seqs import ichunks
 from celery import chord
 
-from app import celery, FREE_EMAILS_SET
+from app import celery, FREE_EMAILS_SET, app
 from app.accounts.utils import transform_email_if_useful
 
 
@@ -31,9 +31,17 @@ def handle_intercom_users(project_id):
 
     def _fetch_users():
         with project.use_intercom_credentials() as intercom:
-            for user in intercom.users():
+            for i, user in enumerate(intercom.users()):
                 if not user.email:
                     continue
+
+                # TODO: remove this code in production
+                if (
+                    app.config['AWIS_USER_LIMIT_FOR_PROJECT'] > 0
+                    and i > app.config['AWIS_USER_LIMIT_FOR_PROJECT']
+                ):
+                    logger.info('Limit for project has been reached.')
+                    break
 
                 logger.info('Handle email: %s', user.email)
 
