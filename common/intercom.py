@@ -2,7 +2,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
-from intercom import Intercom, User, Note
+from funcy import retry, log_calls
 
 
 logger = logging.getLogger(__name__)
@@ -10,70 +10,139 @@ logger = logging.getLogger(__name__)
 session = requests.session()
 TIMEOUT = 30
 
+requests_retry = retry(3, errors=requests.RequestException,
+                       timeout=lambda a: 2 ** a)
 
-class IntercomContextManager:
+class IntercomClient:
+    """ Client for making requests to the Intercom's API.
+    Ref: https://developers.intercom.io/docs
+    """
+    base_url = 'https://api.intercom.io'
+
     def __init__(self, app_id, api_key, workers_count=10):
+        self.app_id = app_id
+        self.api_key = api_key
         self.auth = (app_id, api_key)
         self.workers_count = workers_count
 
-    def __enter__(self):
-        Intercom.app_id, Intercom.app_api_key = self.auth
-        return self
+    def get_headers(self, **extra):
+        default = {'Accept': 'application/json'}
+        default.update(extra)
+        return default
 
-    def __exit__(self, *args):
-        Intercom.app_id = Intercom.app_api_key = None
-        # TODO: handle exceptions
+    @log_calls(logger.debug)
+    def get_users(self, per_page=10, order='desc'):
+        @requests_retry
+        def _request(url):
+            response = session.get(url,
+                                   auth=self.auth,
+                                   headers=self.get_headers(),
+                                   timeout=TIMEOUT)
+            response.raise_for_status()
+            return response.json()
 
-    def users_bulk_update(self, data, prefix=None):
-        logger.info('Intercom Users bulk update.')
-        logger.info(data)
-        # return self._real_bulk_update(data)
+        url = '{0}/users?page=1&per_page={1}&order={2}'.format(
+                self.base_url, per_page, order)
 
-        def update(row, prefix):
-            user_id = row.pop('user_id')
-            custom_attributes = row.pop('custom_attributes')
+        while True:
+            response = _request(url)
 
-            if prefix and custom_attributes:
-                custom_attributes = {'_'.join((prefix, k)): v
-                                     for k, v in custom_attributes.items()}
+            for user_data in response['users']:
+                yield user_data
 
-            User.create(user_id=user_id,
-                        custom_attributes=custom_attributes,
-                        **row)
+            if response['pages']['next']:
+                url = response['pages']['next']
+            else:
+                break
+
+    @log_calls(logger.debug)
+    def update_users(self, users_data, prefix=None):
+        url = '{0}/bulk/users'.format(self.base_url)
+
+        def apply_prefix(row, prefix):
+            if prefix and 'custom_attributes' in row:
+                row['custom_attributes'] = {
+                    '_'.join((prefix, k)): v
+                    for k, v in row['custom_attributes'].items()
+                }
+            return row
+
+        @requests_retry
+        def request(url, users_data, prefix):
+            response = session.post(
+                url,
+                json={'items': [
+                    {'method': 'post', 'data_type': 'user',
+                     'data': apply_prefix(d, prefix)} for d in users_data]},
+                auth=self.auth,
+                headers=self.get_headers(),
+                timeout=TIMEOUT)
+            response.raise_for_status()
+
+        return request(url, users_data, prefix)
+
+    @log_calls(logger.debug)
+    def create_notes(self, data):
+        url = '{0}/notes'.format(self.base_url)
+
+        @requests_retry
+        def request(row):
+            if 'user_id' in row:
+                row['user'] = {
+                    'user_id': row.pop('user_id')
+                }
+
+            response = session.post(
+                url,
+                json=row,
+                auth=self.auth,
+                headers=self.get_headers(),
+            )
+
+            response.raise_for_status()
+            return response.json()
 
         with ThreadPoolExecutor(self.workers_count) as executor:
-            for row in data:
-                executor.submit(update, row, prefix)
-
-    def notes_bulk_create(self, data):
-        logger.info('Intercom Notes bulk update.')
-        logger.info(data)
-
-        def update(row):
-            return Note.create(**row)
-
-        with ThreadPoolExecutor(self.workers_count) as executor:
-            for _ in executor.map(update, data):
+            for _ in executor.map(request, data):
                 pass
 
-    def _real_bulk_update(self, data):
-        # Temporarily disabled because API does not working. Wrote a ticket.
-        response = session.post(
-            'https://api.intercom.io/bulk/users',
-            auth=self.auth,
-            headers={'Accept': 'application/json'},
-            params={'items': [
-                {'method': 'post', 'data_type': 'user',
-                 'data': {'user_id': d.pop('user_id'),
-                          'custom_attributes': d}} for d in data]},
-            timeout=TIMEOUT)
-        response.raise_for_status()
-        logger.info(response.json())
-        return response
+    @log_calls(logger.debug)
+    def subscribe(self, hook_url, topics):
+        logger.debug('IntercomClient.subscribe')
+        logger.debug(hook_url)
 
-    def users(self):
-        """ Interator over users.
-        """
-        # TODO impement own solution and drop python-intercom
-        for user in User.all():
-            yield user
+        url = '{0}/subscriptions'.format(self.base_url)
+
+        @requests_retry
+        def request(hook_url, topics):
+            response = session.post(
+                url,
+                json=dict(
+                    service_type='web',
+                    url=hook_url,
+                    topics=topics
+                ),
+                auth=self.auth,
+                headers=self.get_headers()
+            )
+
+            response.raise_for_status()
+            return response.json()
+
+        return request(hook_url, topics)
+
+    @log_calls(logger.debug)
+    def unsubscribe(self, subscription_id):
+        url = '{0}/subscriptions/{1}'.format(self.base_url, subscription_id)
+
+        @requests_retry
+        def request(url):
+            response = session.delete(
+                url,
+                auth=self.auth,
+                headers=self.get_headers()
+            )
+            response.raise_for_status()
+            return response.json()
+
+        return request(url)

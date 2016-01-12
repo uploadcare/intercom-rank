@@ -1,12 +1,9 @@
-import uuid
-
 from flask_user import UserMixin
 from flask.ext.login import current_user
-from intercom import Intercom, Subscription
 
 from app import db
 from common import models
-from common.intercom import IntercomContextManager
+from common.intercom import IntercomClient
 from common.awis import AWISContextManager
 
 
@@ -57,11 +54,8 @@ class Project(db.Model, models.BaseModelMixin, models.CreateAndModifyMixin):
     def get_for_current_user_or_404(cls, pk):
         return cls.get_or_404(cls.user_id == current_user.id, cls.id == pk)
 
-    def use_intercom_credentials(project):
-        """ Initiate contextmanager for working with Intercom.
-        """
-        return IntercomContextManager(project.intercom_app_id,
-                                      project.intercom_api_key)
+    def get_intercom_client(project):
+        return IntercomClient(project.intercom_app_id, project.intercom_api_key)
 
     def use_awis_credentials(project):
         """ Initiate contextmanager for working with AWIS.
@@ -70,9 +64,6 @@ class Project(db.Model, models.BaseModelMixin, models.CreateAndModifyMixin):
                                   project.aws_secret_access_key)
 
     def delete(self):
-        if self.intercom_subscription_id:
-            with self.use_intercom_credentials():
-                sub = Subscription()
-                sub.id = self.intercom_subscription_id
-                sub.delete()
+        client = self.get_intercom_client()
+        client.unsubscribe(self.intercom_subscription_id)
         return super(Project, self).delete()

@@ -1,12 +1,9 @@
 import logging
-import asyncio
-from itertools import chain
 
 from requests.exceptions import ReadTimeout, ConnectionError
 from funcy.seqs import ichunks
-from celery import chord
 
-from app import celery, FREE_EMAILS_SET, app
+from app import celery, app
 from app.accounts.utils import transform_email_if_useful
 
 
@@ -17,7 +14,7 @@ logger = logging.getLogger(__name__)
 def handle_intercom_users(project_id):
     """ Background task which runs after creation of project.
     Fetch and filter users from Intercom. After that call task for
-    fetching information from AWIS.
+    fetching information from the AWIS.
     """
     from app.accounts.models import Project
 
@@ -31,30 +28,31 @@ def handle_intercom_users(project_id):
 
     def _fetch_users():
         counter = 0
-        with project.use_intercom_credentials() as intercom:
-            for user in intercom.users():
-                if not user.email:
-                    continue
+        client = project.get_intercom_client()
 
-                logger.info('Handle email: %s', user.email)
+        for user in client.get_users():
+            if not user['email']:
+                continue
 
-                user_email = transform_email_if_useful(user.email,
-                                                       user.user_id)
+            logger.info('Handle email: %s', user['email'])
 
-                if not user_email:
-                    logger.info('Unuseful email. Skip.')
-                    continue
+            user_email = transform_email_if_useful(user['email'],
+                                                   user['user_id'])
 
-                # TODO: remove this code in production
-                if (
-                    app.config['AWIS_USER_LIMIT_FOR_PROJECT'] > 0
-                    and counter > app.config['AWIS_USER_LIMIT_FOR_PROJECT']
-                ):
-                    logger.info('Limit for project has been reached.')
-                    break
+            if not user_email:
+                logger.info('Unuseful email. Skip.')
+                continue
 
-                counter += 1
-                yield user_email
+            # TODO: remove this code in production
+            if (
+                app.config['AWIS_USER_LIMIT_FOR_PROJECT'] > 0
+                and counter > app.config['AWIS_USER_LIMIT_FOR_PROJECT']
+            ):
+                logger.info('Limit for project has been reached.')
+                break
+
+            counter += 1
+            yield user_email
 
     try:
         for emails in ichunks(CHUNK_SIZE, _fetch_users()):
@@ -130,6 +128,6 @@ def fetch_and_update_information(emails, project_id):
             # Put user to bulk update
             users.append(dict(user_id=user_id, custom_attributes=data))
 
-    with project.use_intercom_credentials() as intercom:
-        intercom.users_bulk_update(users, prefix='AWIS')
-        intercom.notes_bulk_create(notes)
+    intercom = project.get_intercom_client()
+    intercom.update_users(users, prefix='AWIS')
+    intercom.create_notes(notes)

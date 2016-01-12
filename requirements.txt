@@ -25,7 +25,6 @@ six==1.10.0
 pyjade==3.1.0
 psycopg2==2.6.1
 funcy==1.6
-python-intercom==2.1.1
 celery==3.1.19
 redis==2.10.5
 gunicorn==19.4.5

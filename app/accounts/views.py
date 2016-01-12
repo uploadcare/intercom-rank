@@ -48,7 +48,7 @@ def project_add():
 
         form.populate_obj(project)
         try:
-            form.create_subsciption_for(project)
+            form.create_subscription_for(project)
         except Exception:
             logger.exception('Intercom subscription errror')
             flash('Can\'t create subscription on Intercom\'s events. '
