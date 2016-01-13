@@ -57,7 +57,7 @@ class Project(db.Model, models.BaseModelMixin, models.CreateAndModifyMixin):
     def get_intercom_client(project):
         return IntercomClient(project.intercom_app_id, project.intercom_api_key)
 
-    def use_awis_credentials(project):
+    def start_awis_session(project):
         """ Initiate contextmanager for working with AWIS.
         """
         return AWISContextManager(project.aws_access_id,

@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 
 from requests.exceptions import ReadTimeout, ConnectionError
 from funcy.seqs import ichunks
@@ -44,10 +45,7 @@ def handle_intercom_users(project_id):
                 continue
 
             # TODO: remove this code in production
-            if (
-                app.config['AWIS_USER_LIMIT_FOR_PROJECT'] > 0
-                and counter > app.config['AWIS_USER_LIMIT_FOR_PROJECT']
-            ):
+            if 0 < app.config['AWIS_USER_LIMIT_FOR_PROJECT'] < counter:
                 logger.info('Limit for project has been reached.')
                 break
 
@@ -70,10 +68,13 @@ def fetch_and_update_information(emails, project_id):
         logger.error('Project with id == %s does not exist', project_id)
         return
 
-    # {domain.com: users_id, ...}
-    domains_map = dict(e.split('@')[::-1] for e in emails)
+    # {domain.com: [users_id, user_id], ...}
+    domains_map = defaultdict(list)
+    for e in emails:
+        key, value = e.split('@')[::-1]
+        domains_map[key].append(value)
 
-    with project.use_awis_credentials() as awis:
+    with project.start_awis_session() as awis:
         awis.url_info(domains_map.keys(),
                       'UsageStats', 'SiteData', 'Language', 'RankByCountry')
 
@@ -115,18 +116,17 @@ def fetch_and_update_information(emails, project_id):
         users = []
 
         for domain, data in awis.session_result.items():
-            user_id = domains_map[domain]
+            note_body = ('Title: {title}\n'
+                         'Descr: {description}\n'
+                         'Since: {online_since}\n'.format(
+                         **data.pop('site_data')))
 
-            # Create note
-            notes.append(dict(
-                user_id=user_id,
-                body='Title: {title}\n'
-                     'Descr: {description}\n'
-                     'Since: {online_since}\n'.format(**data.pop('site_data'))
-            ))
+            for user_id in domains_map[domain]:
+                # Put note to the bulk update
+                notes.append(dict(user_id=user_id, body=note_body))
 
-            # Put user to bulk update
-            users.append(dict(user_id=user_id, custom_attributes=data))
+                # Put user to the bulk update
+                users.append(dict(user_id=user_id, custom_attributes=data))
 
     intercom = project.get_intercom_client()
     intercom.update_users(users, prefix='AWIS')

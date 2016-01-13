@@ -1,15 +1,13 @@
 import json
 import logging
 
-from flask import (request, Blueprint, abort, render_template, redirect,
-                   url_for, flash)
-from flask.views import MethodView
+from flask import request, Blueprint, abort, redirect, url_for, flash
 from flask.ext.user import login_required
 from flask.ext.login import current_user
 
 from common.decorators import render_to
 from app import app, csrf
-from app.accounts.models import User, Project
+from app.accounts.models import Project
 from app.accounts.forms import ProjectForm, ProjectChnageForm
 from app.accounts.utils import transform_email_if_useful
 from app.accounts.tasks import (fetch_and_update_information,
@@ -50,7 +48,7 @@ def project_add():
         try:
             form.create_subscription_for(project)
         except Exception:
-            logger.exception('Intercom subscription errror')
+            logger.exception('Intercom subscription error')
             flash('Can\'t create subscription on Intercom\'s events. '
                   'Probably you provide an incorrect APP_ID or API_KEY.',
                   'danger')
