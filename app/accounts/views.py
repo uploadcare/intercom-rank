@@ -8,7 +8,7 @@ from flask.ext.login import current_user
 from common.decorators import render_to
 from app import app, csrf
 from app.accounts.models import Project
-from app.accounts.forms import ProjectForm, ProjectChnageForm
+from app.accounts.forms import ProjectForm
 from app.accounts.utils import transform_email_if_useful
 from app.accounts.tasks import (fetch_and_update_information,
                                 handle_intercom_users)
@@ -79,13 +79,19 @@ def project_add():
 @login_required
 def project_update(pk):
     project = Project.get_for_current_user_or_404(pk)
-
-    form = ProjectChnageForm(obj=project)
+    form = ProjectForm(obj=project)
 
     if form.validate_on_submit():
         form.populate_obj(project)
         project.save()
+
         flash('Project has been updated', 'success')
+
+        if form.intercom_api_key.is_changed:
+            handle_intercom_users(project.id)
+            flash('Job for importing existing users for a new '
+                  'Intercom project started', 'success')
+
         return redirect(url_for('accounts.projects_list'))
 
     flash('For are changing approved keys, '

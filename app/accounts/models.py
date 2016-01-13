@@ -40,7 +40,7 @@ class Project(db.Model, models.BaseModelMixin, models.CreateAndModifyMixin):
     intercom_webhooks_internal_secret = db.Column(db.Unicode(255))
     intercom_subscription_id = db.Column(db.Unicode(255))
 
-    aws_access_id = db.Column(db.Unicode(255), nullable=False, unique=True)
+    aws_access_id = db.Column(db.Unicode(255), nullable=False)
     aws_secret_access_key = db.Column(db.Unicode(255), nullable=False)
 
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id'),

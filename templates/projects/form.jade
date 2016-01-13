@@ -22,24 +22,13 @@ block body
 
         {{ render_field(form.title) }}
 
-        - if project
-          legend Intercom
-          {{ render_fake_field(project.intercom_app_id) }}
-          {{ render_fake_field(project.intercom_api_key) }}
+        legend Intercom
+        {{ render_field(form.intercom_app_id) }}
+        {{ render_field(form.intercom_api_key) }}
 
-          legend AWIS
-          {{ render_fake_field(project.aws_access_id) }}
-          {{ render_fake_field(project.aws_secret_access_key) }}
-
-        - else
-
-          legend Intercom
-          {{ render_field(form.intercom_app_id) }}
-          {{ render_field(form.intercom_api_key) }}
-
-          legend AWIS
-          {{ render_field(form.aws_access_id) }}
-          {{ render_field(form.aws_secret_access_key) }}
+        legend AWIS
+        {{ render_field(form.aws_access_id) }}
+        {{ render_field(form.aws_secret_access_key) }}
 
         br
 
