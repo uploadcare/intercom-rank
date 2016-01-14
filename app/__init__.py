@@ -1,5 +1,6 @@
 import os
 
+import redis
 from flask import Flask
 from flask_mail import Mail
 from flask_script import Manager
@@ -7,6 +8,7 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CsrfProtect
 from celery import Celery
+
 
 PROJECT_ROOT = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -24,6 +26,8 @@ db = SQLAlchemy(app)
 manager = Manager(app)
 migrate = Migrate(app, db)
 mail = Mail(app)
+
+redis_pool = redis.ConnectionPool.from_url(app.config['REDIS_CONF'])
 
 csrf = CsrfProtect(app)
 

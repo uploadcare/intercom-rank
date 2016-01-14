@@ -13,6 +13,7 @@ TIMEOUT = 30
 requests_retry = retry(3, errors=requests.RequestException,
                        timeout=lambda a: 2 ** a)
 
+
 class IntercomClient:
     """ Client for making requests to the Intercom's API.
     Ref: https://developers.intercom.io/docs
@@ -31,7 +32,7 @@ class IntercomClient:
         return default
 
     @log_calls(logger.debug)
-    def get_users(self, per_page=10, order='desc'):
+    def get_users(self, per_page=25, order='desc'):
         @requests_retry
         def _request(url):
             response = session.get(url,
@@ -42,7 +43,7 @@ class IntercomClient:
             return response.json()
 
         url = '{0}/users?page=1&per_page={1}&order={2}'.format(
-                self.base_url, per_page, order)
+            self.base_url, per_page, order)
 
         while True:
             response = _request(url)
@@ -78,6 +79,7 @@ class IntercomClient:
                 headers=self.get_headers(),
                 timeout=TIMEOUT)
             response.raise_for_status()
+            return response.json()
 
         return request(url, users_data, prefix)
 

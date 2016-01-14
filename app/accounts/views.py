@@ -56,7 +56,7 @@ def project_add():
 
         project.user_id = current_user.id
         project.save()
-        handle_intercom_users(project.id)
+        handle_intercom_users.delay(project.id)
 
         flash('Project has been added', 'success')
 

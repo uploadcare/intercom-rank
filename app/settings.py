@@ -25,7 +25,10 @@ ADMIN_USER = {
     'password': os.environ.get('RANKER_ADMIN_PASSWORD', '123'),
 }
 
+# Rename to 'CELERY_REDIS_URL'
 CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/9')
 CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379/9')
+
+REDIS_CONF = os.environ.get('CACHE_REDIS_URL', 'redis://localhost:6379/9')
 
 AWIS_USER_LIMIT_FOR_PROJECT = 30

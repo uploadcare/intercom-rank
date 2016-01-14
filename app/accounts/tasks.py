@@ -112,21 +112,21 @@ def fetch_and_update_information(emails, project_id):
             result_row['page_views_per_million'] = awis.get_value(
                 node, 'PageViews/PerMillion/Value')
 
-        notes = []
-        users = []
+    notes = []
+    users = []
 
-        for domain, data in awis.session_result.items():
-            note_body = ('Title: {title}\n'
-                         'Descr: {description}\n'
-                         'Since: {online_since}\n'.format(
-                         **data.pop('site_data')))
+    for domain, data in awis.session_result.items():
+        note_body = ('Title: {title}\n'
+                     'Descr: {description}\n'
+                     'Since: {online_since}\n'.format(
+                     **data.pop('site_data')))
 
-            for user_id in domains_map[domain]:
-                # Put note to the bulk update
-                notes.append(dict(user_id=user_id, body=note_body))
+        for user_id in domains_map[domain]:
+            # Put note to the bulk update
+            notes.append(dict(user_id=user_id, body=note_body))
 
-                # Put user to the bulk update
-                users.append(dict(user_id=user_id, custom_attributes=data))
+            # Put user to the bulk update
+            users.append(dict(user_id=user_id, custom_attributes=data))
 
     intercom = project.get_intercom_client()
     intercom.update_users(users, prefix='AWIS')
