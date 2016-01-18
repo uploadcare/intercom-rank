@@ -9,15 +9,36 @@ logger = logging.getLogger(__name__)
 
 session = requests.session()
 TIMEOUT = 30
+RETRY_COUNT = 3
 
-requests_retry = retry(3, errors=requests.RequestException,
-                       timeout=lambda a: 2 ** a)
+
+def _timeout(i):
+    from app import app
+    if app.config.get('TESTING'):
+        return 0
+    return 2 ** i
+
+
+requests_retry = retry(RETRY_COUNT, errors=requests.RequestException,
+                       timeout=_timeout)
+
+
+class IntercomError(Exception):
+    """ Base exception for IntercomClient.
+    """
+
+
+class IntercomValidationError(IntercomError):
+    """ Incorrect value for one of the request's parameter.
+    """
 
 
 class IntercomClient:
     """ Client for making requests to the Intercom's API.
     Ref: https://developers.intercom.io/docs
     """
+    # TODO: Add validation for incoming and outgoing values
+    # See: https://github.com/nicolaiarocci/cerberus
     base_url = 'https://api.intercom.io'
 
     def __init__(self, app_id, api_key, workers_count=10):
@@ -32,7 +53,11 @@ class IntercomClient:
         return default
 
     @log_calls(logger.debug)
-    def get_users(self, per_page=25, order='desc'):
+    def iter_users(self, per_page=50, order='desc'):
+        VALID_ORDERS = ('desc', 'asc')
+        if order not in VALID_ORDERS:
+            raise IntercomValidationError('order can by %s' % VALID_ORDERS)
+
         @requests_retry
         def _request(url):
             response = session.get(url,
@@ -89,14 +114,9 @@ class IntercomClient:
 
         @requests_retry
         def request(row):
-            if 'user_id' in row:
-                row['user'] = {
-                    'user_id': row.pop('user_id')
-                }
-
             response = session.post(
                 url,
-                json=row,
+                json=dict(user={'user_id': row['user_id']}, body=row['body']),
                 auth=self.auth,
                 headers=self.get_headers(),
             )
@@ -110,9 +130,6 @@ class IntercomClient:
 
     @log_calls(logger.debug)
     def subscribe(self, hook_url, topics):
-        logger.debug('IntercomClient.subscribe')
-        logger.debug(hook_url)
-
         url = '{0}/subscriptions'.format(self.base_url)
 
         @requests_retry

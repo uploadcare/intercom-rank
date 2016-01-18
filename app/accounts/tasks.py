@@ -31,7 +31,7 @@ def handle_intercom_users(project_id):
         counter = 0
         client = project.get_intercom_client()
 
-        for user in client.get_users():
+        for user in client.iter_users():
             if not user['email']:
                 continue
 

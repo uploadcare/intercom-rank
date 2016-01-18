@@ -48,3 +48,10 @@ Run tests:
 .. code-block:: console
 
     $ nose2 tests
+
+
+Run tests with output:
+
+.. code-block:: console
+
+    $ nose2 tests -B --log-capture
