@@ -47,7 +47,7 @@ class ProjectForm(BaseForm):
     submit = SubmitField('Save')
 
     def create_subscription_for(self, project):
-        project.intercom_webhooks_internal_secret = uuid.uuid4()
+        project.intercom_webhooks_internal_secret = str(uuid.uuid4())
         client = project.get_intercom_client()
         sub = client.subscribe(
             hook_url=url_for(

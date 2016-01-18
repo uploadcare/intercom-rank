@@ -1,3 +1,4 @@
+import mock
 from flask import session
 
 from tests.base import TestCase
@@ -37,7 +38,10 @@ class ProjectsTestCase(TestCase):
         self.assert200(response)
         self.assertTemplateUsed('projects/form.jade')
 
-    def test_add_with_valid_data(self):
+    @mock.patch('common.intercom.IntercomClient.subscribe')
+    def test_add_with_valid_data(self, subscribe):
+        subscribe.return_value = {'id': 'some-id'}
+
         valid_data = dict(
             title='title',
             intercom_app_id='intercom_app_id',
@@ -55,6 +59,7 @@ class ProjectsTestCase(TestCase):
 
         self.assertEqual(len(projects), 1)
         self.assertEqual(projects[0].title, valid_data['title'])
+        self.assertTrue(subscribe.called)
 
     def test_invalid_data_not_added(self):
         self.login()
