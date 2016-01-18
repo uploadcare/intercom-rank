@@ -87,10 +87,10 @@ def project_update(pk):
 
         flash('Project has been updated', 'success')
 
-        if form.intercom_api_key.is_changed:
-            handle_intercom_users(project.id)
-            flash('Job for importing existing users for a new '
-                  'Intercom project started', 'success')
+        # if form.intercom_api_key.is_changed:
+        handle_intercom_users.delay(project.id)
+        flash('Job for importing existing users for a new '
+              'Intercom project started', 'success')
 
         return redirect(url_for('accounts.projects_list'))
 

@@ -2,7 +2,7 @@ import uuid
 
 from flask import url_for
 from flask.ext.login import current_user
-from wtforms import StringField, SubmitField
+from wtforms import SubmitField
 from wtforms.validators import DataRequired, ValidationError
 
 from app.accounts.models import Project

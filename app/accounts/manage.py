@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from app import app, manager, db
+from app import app, manager
 from app.accounts import User
 
 

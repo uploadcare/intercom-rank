@@ -1,5 +1,5 @@
-from .models import *
-from .views import *
-from .forms import *
-from .manage import *
-from .setup import *
+from .models import *  # NOQA
+from .views import *  # NOQA
+from .forms import *  # NOQA
+from .manage import *  # NOQA
+from .setup import *  # NOQA

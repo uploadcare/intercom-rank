@@ -116,10 +116,11 @@ def fetch_and_update_information(emails, project_id):
     users = []
 
     for domain, data in awis.session_result.items():
-        note_body = ('Title: {title}\n'
-                     'Descr: {description}\n'
-                     'Since: {online_since}\n'.format(
-                     **data.pop('site_data')))
+        note_body = (
+            'Title: {title}\n'
+            'Descr: {description}\n'
+            'Since: {online_since}\n'.format(
+                **data.pop('site_data')))
 
         for user_id in domains_map[domain]:
             # Put note to the bulk update
