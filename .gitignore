@@ -46,3 +46,4 @@ docs/_build
 /static/node_modules/*
 *.sublime-project
 *.sublime-workspace
+.idea
