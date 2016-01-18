@@ -8,6 +8,8 @@ This service adds more information about your users using by `AWIS <http://aws.a
 * User's site language.
 * User's site rank, rank in default country, page views (per million).
 
+For filtering email addresses domains used a  `free_email_provider_domains.txt <https://gist.github.com/zerc/422e749fa533485122fa>`_ originally created by @tbrianjones.
+
 
 Development
 -----------
