@@ -47,4 +47,4 @@ Run tests:
 
 .. code-block:: console
 
-    $ python manage.py test
+    $ nose2 tests

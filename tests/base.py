@@ -1,5 +1,3 @@
-import unittest
-
 from flask.ext.testing import TestCase as _TestCase
 
 from app import app, db
@@ -7,7 +5,7 @@ from app import app, db
 
 class TestCase(_TestCase):
     def create_app(self):
-        app.config.from_object('settings_test')
+        app.config.from_object('tests.settings_test')
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         return app
 
