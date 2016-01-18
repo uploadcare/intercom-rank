@@ -2,7 +2,7 @@
 Intercom-rank: a service where Intercom meets AWIS
 ==================================================
 
-This service adds more information about your users using by [AWIS](http://aws.amazon.com/awis/). According to their emails, try to fill next helpful information:
+This service adds more information about your users using by `AWIS <http://aws.amazon.com/awis/>`_. According to their emails, try to fill next helpful information:
 
 * User's site title, description, online since.
 * User's site language.
@@ -12,7 +12,7 @@ This service adds more information about your users using by [AWIS](http://aws.a
 Development
 -----------
 
-Service primary built on [Flask](http://flask.pocoo.org).
+Service primary built on `Flask <http://flask.pocoo.org>`_.
 
 For local install:
 
@@ -42,3 +42,9 @@ Create an admin:
 .. code-block:: console
 
     $ python manage.py create_admin
+
+Run tests:
+
+.. code-block:: console
+
+    $ python manage.py test
