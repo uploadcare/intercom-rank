@@ -45,6 +45,7 @@ class ProjectForm(BaseForm):
     aws_secret_access_key = default_string_field('AWS secret_access_key')
 
     submit = SubmitField('Save')
+    repeat_import = SubmitField('Re-Import')
 
     def create_subscription_for(self, project):
         project.intercom_webhooks_internal_secret = str(uuid.uuid4())

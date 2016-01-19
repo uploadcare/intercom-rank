@@ -32,4 +32,12 @@ block body
 
         br
 
-        {{ form.submit(class="uk-width-1-1 uk-button uk-button-primary uk-button-large") }}
+        .uk-grid
+          - if project
+            .uk-width-1-2
+              {{ form.repeat_import(class="uk-width-1-1 uk-button uk-button-success uk-button-large") }}
+            .uk-width-1-2
+              {{ form.submit(class="uk-width-1-1 uk-button uk-button-primary uk-button-large") }}
+          - else
+            .uk-width-1-1
+              {{ form.submit(class="uk-width-1-1 uk-button uk-button-primary uk-button-large") }}
