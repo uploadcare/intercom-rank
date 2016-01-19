@@ -12,7 +12,7 @@ class TestCase(_TestCase):
     def setUp(self):
         db.create_all()
         from app.accounts.manage import create_admin
-        create_admin()
+        self.user = create_admin()
 
     def tearDown(self):
         db.session.remove()
@@ -29,3 +29,7 @@ class TestCase(_TestCase):
 
     def logout(self):
         return self.client.get('/user/sign-out', follow_redirects=True)
+
+    def assertRedirectToLogin(self, response, next_url):
+        expected = '/user/sign-in?next=http%3A//localhost{0}'.format(next_url)
+        self.assertRedirects(response, expected)

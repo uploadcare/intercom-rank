@@ -12,7 +12,7 @@ def create_admin():
     user = User.query.filter(User.email == email).first()
 
     if user:
-        return
+        return user
 
     user = User(email=email,
                 password=app.user_manager.hash_password(password),
@@ -20,3 +20,4 @@ def create_admin():
                 is_admin=True,
                 confirmed_at=datetime.utcnow())
     user.save()
+    return user

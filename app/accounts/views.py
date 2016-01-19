@@ -84,7 +84,6 @@ def project_update(pk):
     if form.validate_on_submit():
         form.populate_obj(project)
         project.save()
-
         flash('Project has been updated', 'success')
 
         if form.intercom_api_key.is_changed or form.data['repeat_import']:
@@ -93,9 +92,6 @@ def project_update(pk):
                   'Intercom project started', 'success')
 
         return redirect(url_for('accounts.projects_list'))
-
-    flash('For are changing approved keys, '
-          'please create a new project instead.', 'warning')
 
     return locals()
 
