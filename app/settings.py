@@ -31,4 +31,4 @@ CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379/9')
 
 REDIS_CONF = os.environ.get('CACHE_REDIS_URL', 'redis://localhost:6379/9')
 
-AWIS_USER_LIMIT_FOR_PROJECT = 30
+AWIS_USER_LIMIT_FOR_PROJECT = int(os.environ.get('LIMIT_FOR_PROJECT', 30))
