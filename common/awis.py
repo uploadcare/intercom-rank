@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class AWISContextManager:
-    def __init__(self, access_id, secret_access_key, workers_count=10):
+    def __init__(self, access_id, secret_access_key, workers_count=5):
         self.auth = (access_id.encode('utf-8'),
                      secret_access_key.encode('utf-8'))
         self.workers_count = workers_count
