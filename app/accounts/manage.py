@@ -1,23 +1,9 @@
-from datetime import datetime
+from app.accounts.utils import create_admin as _create_admin
 
-from app import app, manager
-from app.accounts import User
+
+from app import manager
 
 
 @manager.command
 def create_admin():
-    email = app.config['ADMIN_USER']['email']
-    password = app.config['ADMIN_USER']['password']
-
-    user = User.query.filter(User.email == email).first()
-
-    if user:
-        return user
-
-    user = User(email=email,
-                password=app.user_manager.hash_password(password),
-                is_enabled=True,
-                is_admin=True,
-                confirmed_at=datetime.utcnow())
-    user.save()
-    return user
+    _create_admin()

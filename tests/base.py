@@ -1,6 +1,7 @@
 from flask.ext.testing import TestCase as _TestCase
 
 from app import app, db
+from app.accounts.utils import create_admin
 
 
 class TestCase(_TestCase):
@@ -11,7 +12,6 @@ class TestCase(_TestCase):
 
     def setUp(self):
         db.create_all()
-        from app.accounts.manage import create_admin
         self.user = create_admin()
 
     def tearDown(self):

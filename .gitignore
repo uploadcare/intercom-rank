@@ -47,3 +47,4 @@ docs/_build
 *.sublime-project
 *.sublime-workspace
 .idea
+local_settings.py
