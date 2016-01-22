@@ -28,5 +28,6 @@ funcy==1.6
 celery==3.1.19
 redis==2.10.5
 gunicorn==19.4.5
+requests==2.9.1
 
 -e git+https://github.com/zerc/python-awis.git@9b5bfca#egg=python-awis
