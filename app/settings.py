@@ -11,10 +11,10 @@ SECRET_KEY = os.environ.get(
 
 
 DATABASE = {
-    'name': 'ranker',
-    'host': 'localhost',
-    'user': 'postgres',
-    'password': '',
+    'name': os.environ.get('DB_NAME', 'ranker'),
+    'host': os.environ.get('DB_HOST', 'localhost'),
+    'user': os.environ.get('DB_USER', 'postgres'),
+    'password': os.environ.get('DB_PASSWORD', ''),
 }
 
 SQLALCHEMY_TRACK_MODIFICATIONS = DEBUG
