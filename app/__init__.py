@@ -34,9 +34,6 @@ csrf = CsrfProtect(app)
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
 
-with open(os.path.join(PROJECT_ROOT, 'free.emails'), 'r') as f:
-    FREE_EMAILS_SET = set(r.strip() for r in f.readlines())
-
 
 def setup():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(

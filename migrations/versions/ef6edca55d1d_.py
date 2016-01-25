@@ -10,11 +10,13 @@ Create Date: 2016-01-25 16:29:29.840699
 revision = 'ef6edca55d1d'
 down_revision = '73bc969a393a'
 
+import os
+
 from alembic import op
 import sqlalchemy as sa
 from funcy import chunks
 
-from app import FREE_EMAILS_SET
+from app import PROJECT_ROOT
 
 
 def upgrade():
@@ -26,6 +28,9 @@ def upgrade():
     )
     op.create_index(op.f('ix_free_email_providers_domain'), 'free_email_providers', ['domain'], unique=False)
     ### end Alembic commands ###
+
+    with open(os.path.join(PROJECT_ROOT, 'free.emails'), 'r') as f:
+        FREE_EMAILS_SET = set(r.strip() for r in f.readlines())
 
     # Fill the data
     for domains in chunks(1000, FREE_EMAILS_SET):

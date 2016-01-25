@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from app import app, FREE_EMAILS_SET
-from app.accounts import User
+from app import app
+from app.accounts import User, FreeEmailProvider
 
 
 def transform_email_if_useful(email, user_id):
@@ -10,7 +10,7 @@ def transform_email_if_useful(email, user_id):
     """
     email_domain = (email or '').split('@')[-1].strip()
 
-    if not email_domain or email_domain in FREE_EMAILS_SET:
+    if not email_domain or FreeEmailProvider.exists(email_domain):
         return None
 
     return '{}@{}'.format(user_id, email_domain)

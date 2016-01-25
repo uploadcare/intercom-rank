@@ -77,3 +77,7 @@ class FreeEmailProvider(db.Model, models.BaseModelMixin):
 
     def __unicode__(self):
         return self.domain
+
+    @classmethod
+    def exists(cls, domain):
+        return bool(cls.query.filter(cls.domain == domain).first())
