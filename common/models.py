@@ -30,6 +30,9 @@ class BaseModelMixin(PrimaryKeyMixin):
 
     @classmethod
     def get_or_404(cls, *args):
+        if len(args) == 1 and isinstance(args[0], int):
+            args = [cls.id == args[0]]
+
         item = cls.query.filter(*args).first()
 
         if item is None:

@@ -2,6 +2,9 @@ extends "base.jade"
 
 
 block body
+  a.uk-button.uk-button-primary.uk-button-small(href="{{ url_for('accounts.project_add') }}")
+    | Add project
+
   table.uk-table.uk-table-striped(style="border:1px solid #eee;")
     thead
       tr

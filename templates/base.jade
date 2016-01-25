@@ -18,6 +18,12 @@ html.uk-height-1-1.uk-notouch
           margin: -15px -15px 15px -15px;
           padding: 5px;
         }
+        .footer {
+          position:absolute;
+          width:100%;
+          bottom:0;
+          border-top:1px solid #eee;
+        }
 
   body(class="{{ body_class or 'uk-height-1-1'}}")
     block header
@@ -25,8 +31,8 @@ html.uk-height-1-1.uk-notouch
         a.uk-navbar-brand(href="/") Dashboard
 
         .uk-navbar-content
-          a.uk-button.uk-button-primary.uk-button-small(href="{{ url_for('accounts.project_add') }}")
-            | Add project
+          a.uk-button.uk-button-small(href="{{ url_for('accounts.free_email_providers_list') }}")
+            | Free emails
 
         .uk-navbar-flip
           ul.uk-navbar-nav
@@ -45,7 +51,7 @@ html.uk-height-1-1.uk-notouch
       block body
 
       block footer
-        .uk-text-center(style="border-top:1px solid #eee; position:absolute; width:100%; bottom:0;")
+        .uk-text-center.footer
           p.uk-text-muted.uk-text-small
             | 2016 &copy; Uploadcare
 

@@ -1,0 +1,36 @@
+extends "base.jade"
+- from "macros.jade" import render_pagination, render_field
+
+- macro render_column(providers):
+  ul.uk-list.uk-list-striped.uk-width-1-3
+    - for provider in providers
+      li
+        form(action="{{ url_for('accounts.free_email_provider_remove', pk=provider.id) }}", method="POST")
+          input(type="hidden", name="csrf_token", value="{{ csrf_token() }}")
+          button.uk-button-link.uk-text-danger(href="#")
+            i.uk-icon-remove
+          | {{ provider.domain }}
+
+
+block head
+  super
+  style.
+    .footer {
+      position:relative;
+    }
+
+block body
+  form.uk-form(method="POST", action=".", style="margin-bottom:5px;")
+    {{ form.csrf_token }}
+    .uk-grid.uk-grid-small
+      .uk-width-1-3
+        {{ render_field(form.domain) }}
+      .uk-width-1-6
+        {{ form.submit(class="uk-button uk-button-primary", style="line-height:40px;") }}
+
+  .uk-grid(style="margin:0;")
+    {{ render_column(pagination.items[:30]) }}
+    {{ render_column(pagination.items[30:60]) }}
+    {{ render_column(pagination.items[60:90]) }}
+
+  {{ render_pagination(pagination, 'accounts.free_email_providers_list') }}

@@ -7,8 +7,8 @@ from flask.ext.login import current_user
 
 from common.decorators import render_to
 from app import app, csrf
-from app.accounts.models import Project
-from app.accounts.forms import ProjectForm
+from app.accounts.models import Project, FreeEmailProvider
+from app.accounts.forms import ProjectForm, FreeEmailProviderForm
 from app.accounts.utils import transform_email_if_useful
 from app.accounts.tasks import (fetch_and_update_information,
                                 handle_intercom_users)
@@ -121,3 +121,29 @@ def handle_intercom_hooks(internal_secret):
         fetch_and_update_information.delay([user_email], project.id)
 
     return json.dumps({'status': 'ok'})
+
+
+@accounts_app.route('/fep/', methods=('POST', 'GET'))
+@render_to('fep/list.jade')
+@login_required
+def free_email_providers_list():
+    form = FreeEmailProviderForm()
+    if form.validate_on_submit():
+        item = FreeEmailProvider()
+        form.populate_obj(item)
+        item.save()
+        form = FreeEmailProviderForm(None)
+
+    domains = (FreeEmailProvider.query
+               .order_by(FreeEmailProvider.domain.asc()))
+    pagination = domains.paginate(per_page=90)
+    return locals()
+
+
+@accounts_app.route('/fep/<int:pk>/remove/', methods=('POST',))
+@login_required
+def free_email_provider_remove(pk):
+    fep = FreeEmailProvider.get_or_404(pk)
+    fep.delete()
+    flash('Email provider has been removed', 'success')
+    return redirect(url_for('accounts.free_email_providers_list'))

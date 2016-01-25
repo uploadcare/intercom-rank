@@ -68,3 +68,12 @@ class Project(db.Model, models.BaseModelMixin, models.CreateAndModifyMixin):
         client = self.get_intercom_client()
         client.unsubscribe(self.intercom_subscription_id)
         return super(Project, self).delete()
+
+
+class FreeEmailProvider(db.Model, models.BaseModelMixin):
+    __tablename__ = 'free_email_providers'
+
+    domain = db.Column(db.Unicode(255), nullable=False, index=True)
+
+    def __unicode__(self):
+        return self.domain

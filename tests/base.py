@@ -5,6 +5,8 @@ from app.accounts.utils import create_admin
 
 
 class TestCase(_TestCase):
+    db = db
+
     def create_app(self):
         app.config.from_object('tests.settings_test')
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'

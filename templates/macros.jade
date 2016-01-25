@@ -8,3 +8,17 @@
     {{ field(placeholder=placeholder or field.label.text|capitalize, class=field_cls) }}
     p.uk-text-danger.uk-text-small(style="margin:0; text-align:left;")
       {{ field.errors|join(' ') }}&nbsp;
+
+
+- macro render_pagination(pagination, endpoint)
+  ul.uk-pagination
+    - for page in pagination.iter_pages()
+      li
+        - if page
+          - if page != pagination.page
+            a(href="{{ url_for(endpoint, page=page) }}")
+              | {{ page }}
+          - else
+            span.uk-active {{ page }}
+        - else
+          span …
