@@ -5,7 +5,6 @@ from requests.exceptions import ReadTimeout, ConnectionError
 from funcy.seqs import ichunks
 
 from app import celery, app
-from app.intercom.models import IntercomUser
 
 
 logger = logging.getLogger(__name__)
@@ -18,6 +17,7 @@ def handle_intercom_users(project_id):
     fetching information from the AWIS.
     """
     from app.accounts.models import Project
+    from app.intercom.models import IntercomUser
 
     # Maximum items per request for Intercom's bulk update
     CHUNK_SIZE = 100

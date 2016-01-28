@@ -1,8 +1,12 @@
 from datetime import datetime
 
 from flask import abort
-
+from blinker import signal
 from app import db
+
+
+post_save = signal('post_save')
+pre_delete = signal('pre_delete')
 
 
 class PrimaryKeyMixin(object):
@@ -23,8 +27,10 @@ class BaseModelMixin(PrimaryKeyMixin):
         """
         db.session.add(self)
         db.session.commit()
+        post_save.send(self.class_name, instance=self)
 
     def delete(self):
+        pre_delete.send(self.class_name, instance=self)
         db.session.delete(self)
         db.session.commit()
 
@@ -39,3 +45,8 @@ class BaseModelMixin(PrimaryKeyMixin):
             raise abort(404)
 
         return item
+
+    @property
+    def class_name(self):
+        cls = type(self)
+        return '{}.{}'.format(cls.__module__.split('.')[1], cls.__name__)

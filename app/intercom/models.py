@@ -3,6 +3,8 @@ from app import db
 
 from common import models
 from app.accounts.utils import email_is_useful, extract_domain
+from app.accounts.tasks import fetch_and_update_information
+
 
 logger = logging.getLogger(__name__)
 
@@ -73,3 +75,62 @@ class IntercomUser(db.Model, models.BaseModelMixin):
             db.session.commit()
 
         return row
+
+
+def new_domain_added_to_black_list(sender, instance, **kwargs):
+    users = IntercomUser.query.filter(
+        IntercomUser.domain == instance.domain,
+        IntercomUser.is_useful_domain == True  # NOQA
+    ).order_by(IntercomUser.project_id.asc()).all()
+
+    project_map = {}
+    for user in users:
+        project_map.setdefault(user.project_id, []).append(user)
+
+    for project_id, users in project_map.items():
+        client = users[0].get_intercom_client()
+        users_data = []
+
+        for user in users:
+            user.is_useful_domain = False
+            db.session.add(user)
+            users_data.append(dict(
+                user_id=user.user_id,
+                custom_attributes={
+                    'lang': None,
+                    'country_rank': None,
+                    'rank_value': None,
+                    'per_million': None,
+                    'page_views_per_million': None,
+                }
+            ))
+
+        print(client.update_users(users_data, prefix='AWIS'))
+        db.session.commit()
+
+
+def domain_removed_from_black_list(sender, instance, **kwargs):
+    users = IntercomUser.query.filter(
+        IntercomUser.domain == instance.domain,
+        IntercomUser.is_useful_domain == False  # NOQA
+    ).order_by(IntercomUser.project_id.asc()).all()
+
+    project_map = {}
+    for user in users:
+        project_map.setdefault(user.project_id, []).append(user)
+
+    for project_id, users in project_map.items():
+        emails = []
+        for user in users:
+            user.is_useful_domain = True
+            db.session.add(user)
+            emails.append(user.transformed_email)
+
+        db.session.commit()
+        fetch_and_update_information.delay(emails, project_id)
+
+
+models.post_save.connect(new_domain_added_to_black_list,
+                         sender='accounts.FreeEmailProvider')
+models.pre_delete.connect(domain_removed_from_black_list,
+                          sender='accounts.FreeEmailProvider')
