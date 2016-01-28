@@ -3,7 +3,6 @@ from flask.ext.login import current_user
 
 from app import db
 from common import models
-from common.intercom import IntercomClient
 from common.awis import AWISContextManager
 
 
@@ -47,6 +46,9 @@ class Project(db.Model, models.BaseModelMixin, models.CreateAndModifyMixin):
                         nullable=False)
     user = db.relationship('User', back_populates='projects')
 
+    intercom_users = db.relationship('IntercomUser',
+                                     back_populates='project')
+
     def __unicode__(self):
         return self.title
 
@@ -55,6 +57,7 @@ class Project(db.Model, models.BaseModelMixin, models.CreateAndModifyMixin):
         return cls.get_or_404(cls.user_id == current_user.id, cls.id == pk)
 
     def get_intercom_client(project):
+        from app.intercom.service import IntercomClient
         return IntercomClient(project.intercom_app_id,
                               project.intercom_api_key)
 

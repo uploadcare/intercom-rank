@@ -36,7 +36,7 @@ class ProjectsTestCase(TestCase):
         self.assert200(response)
         self.assertTemplateUsed('projects/form.jade')
 
-    @mock.patch('common.intercom.IntercomClient.subscribe')
+    @mock.patch('app.intercom.service.IntercomClient.subscribe')
     def test_add_with_valid_data(self, subscribe):
         subscribe.return_value = {'id': 'some-id'}
 

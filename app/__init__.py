@@ -43,7 +43,9 @@ def setup():
         )
 
     from app import accounts
+    from app import intercom
     app.register_blueprint(accounts.accounts_app)
+    app.register_blueprint(intercom.intercom_app)
 
 
 setup()

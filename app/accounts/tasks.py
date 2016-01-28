@@ -5,7 +5,7 @@ from requests.exceptions import ReadTimeout, ConnectionError
 from funcy.seqs import ichunks
 
 from app import celery, app
-from app.accounts.utils import transform_email_if_useful
+from app.intercom.models import IntercomUser
 
 
 logger = logging.getLogger(__name__)
@@ -28,29 +28,11 @@ def handle_intercom_users(project_id):
         return
 
     def _fetch_users():
-        counter = 0
-        client = project.get_intercom_client()
+        for user in IntercomUser.iter_and_sync(project):
+            if not user.is_useful_domain:
+                logger.info('Unuseful domain: %s. Skip.', user.domain)
 
-        for user in client.iter_users():
-            if not user['email']:
-                continue
-
-            logger.info('Handle email: %s', user['email'])
-
-            user_email = transform_email_if_useful(user['email'],
-                                                   user['user_id'])
-
-            if not user_email:
-                logger.info('Unuseful email. Skip.')
-                continue
-
-            # TODO: remove this code in production
-            if 0 < app.config['AWIS_USER_LIMIT_FOR_PROJECT'] < counter:
-                logger.info('Limit for project has been reached.')
-                break
-
-            counter += 1
-            yield user_email
+            yield user.transformed_email
 
     try:
         for emails in ichunks(CHUNK_SIZE, _fetch_users()):

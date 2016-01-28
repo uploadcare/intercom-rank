@@ -3,10 +3,10 @@ import collections
 import mock
 from requests import RequestException
 from tests.base import TestCase
-from common.intercom import IntercomClient, TIMEOUT, RETRY_COUNT
+from app.intercom.service import IntercomClient, TIMEOUT, RETRY_COUNT
 
 
-@mock.patch('common.intercom.session')
+@mock.patch('app.intercom.service.session')
 class IntercomClientTestCase(TestCase):
     def test_init(self, *args):
         client = IntercomClient('app_id', 'api_key', 5)

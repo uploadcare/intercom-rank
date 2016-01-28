@@ -4,16 +4,19 @@ from app import app
 from app.accounts import User, FreeEmailProvider
 
 
-def transform_email_if_useful(email, user_id):
-    """ Helper which transform original email to: user_id@email_domain.com
-    If it is useful (e.g. non-free).
+def email_is_useful(email, default=False):
+    """ Check useful (e.g. non-free) of given email address.
     """
-    email_domain = (email or '').split('@')[-1].strip()
+    domain = extract_domain(email)
 
-    if not email_domain or FreeEmailProvider.exists(email_domain):
-        return None
+    if not domain:
+        return default
 
-    return '{}@{}'.format(user_id, email_domain)
+    return not FreeEmailProvider.exists(domain)
+
+
+def extract_domain(email):
+    return (email or '').split('@')[-1].strip()
 
 
 def create_admin():

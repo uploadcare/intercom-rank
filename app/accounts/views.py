@@ -9,9 +9,9 @@ from common.decorators import render_to
 from app import app, csrf
 from app.accounts.models import Project, FreeEmailProvider
 from app.accounts.forms import ProjectForm, FreeEmailProviderForm
-from app.accounts.utils import transform_email_if_useful
 from app.accounts.tasks import (fetch_and_update_information,
                                 handle_intercom_users)
+from app.intercom.models import IntercomUser
 
 
 accounts_app = Blueprint('accounts', __name__)
@@ -115,10 +115,16 @@ def handle_intercom_hooks(internal_secret):
         raise abort(400)
 
     user = request.json['data']['item']
-    user_email = transform_email_if_useful(user['email'], user['user_id'])
 
-    if user_email:
-        fetch_and_update_information.delay([user_email], project.id)
+    intercom_user = IntercomUser.get_or_create(
+        project,
+        user['user_id'],
+        user['email'],
+        commit=True)
+
+    if intercom_user.is_useful_domain:
+        fetch_and_update_information.delay([intercom_user.transformed_email],
+                                           project.id)
 
     return json.dumps({'status': 'ok'})
 
