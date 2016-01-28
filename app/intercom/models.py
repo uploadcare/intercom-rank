@@ -88,7 +88,7 @@ def new_domain_added_to_black_list(sender, instance, **kwargs):
         project_map.setdefault(user.project_id, []).append(user)
 
     for project_id, users in project_map.items():
-        client = users[0].get_intercom_client()
+        client = users[0].project.get_intercom_client()
         users_data = []
 
         for user in users:
@@ -105,7 +105,7 @@ def new_domain_added_to_black_list(sender, instance, **kwargs):
                 }
             ))
 
-        print(client.update_users(users_data, prefix='AWIS'))
+        client.update_users(users_data, prefix='AWIS')
         db.session.commit()
 
 
