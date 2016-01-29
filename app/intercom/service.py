@@ -189,9 +189,6 @@ class IntercomClient:
             # Filter notes for excluding duplicates
             exist_notes = self.get_notes(pluck('user_id', data))
 
-            if not exist_notes:
-                return iter(data)
-
             for row in data:
                 user_id, body = str(row['user_id']), row['body']
 
@@ -200,10 +197,12 @@ class IntercomClient:
                     continue
 
                 bodies = pluck('body', exist_notes[user_id])
-                if body in bodies:
-                    logger.debug(
-                        'The note with this body already exists: %r', row)
+                if '<p>{}</p>'.format(body) not in bodies:
+                    yield row
                     continue
+
+                logger.debug(
+                    'The note with this body already exists: %r', row)
 
         with ThreadPoolExecutor(self.workers_count) as executor:
             for _ in executor.map(request, iter_data(data)):
