@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
 
-from requests.exceptions import ReadTimeout, ConnectionError
+from requests.exceptions import ReadTimeout, ConnectionError, HTTPError
 from funcy.seqs import ichunks
 
 from app import celery, app
@@ -42,6 +42,11 @@ def handle_intercom_users(project_id):
             fetch_and_update_information.delay(emails, project_id)
     except (ReadTimeout, ConnectionError) as e:
         handle_intercom_users.retry(exc=e)
+    except HTTPError as e:
+        if e.response.status_code == 429:
+            handle_intercom_users.retry(exc=e, countdown=60)
+        else:
+            raise e
 
 
 @celery.task(default_retry_delay=1, max_retries=3)
