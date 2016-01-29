@@ -1,4 +1,6 @@
 import logging
+import time
+import random
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
@@ -83,6 +85,8 @@ class IntercomClient:
 
     @log_calls(logger.debug)
     def update_users(self, users_data, prefix=None):
+        WAIT_RANGE = 15
+
         def apply_prefix(row):
             if prefix and 'custom_attributes' in row:
                 row['custom_attributes'] = {
@@ -93,6 +97,10 @@ class IntercomClient:
 
         @requests_retry
         def request(row):
+            wait_time = random.choice(range(WAIT_RANGE))
+            logger.info('Wait %s seconds.', wait_time)
+            time.sleep(wait_time)
+
             url = '{0}/users'.format(self.base_url)
             response = session.post(
                 url,
