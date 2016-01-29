@@ -189,6 +189,9 @@ class IntercomClient:
             # Filter notes for excluding duplicates
             exist_notes = self.get_notes(pluck('user_id', data))
 
+            if not exist_notes:
+                return iter(data)
+
             for row in data:
                 user_id, body = str(row['user_id']), row['body']
 
