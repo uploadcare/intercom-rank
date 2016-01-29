@@ -83,6 +83,37 @@ class IntercomClient:
 
     @log_calls(logger.debug)
     def update_users(self, users_data, prefix=None):
+        def apply_prefix(row):
+            if prefix and 'custom_attributes' in row:
+                row['custom_attributes'] = {
+                    '_'.join((prefix, k)): v
+                    for k, v in row['custom_attributes'].items()
+                }
+            return row
+
+        @requests_retry
+        def request(row):
+            url = '{0}/users'.format(self.base_url)
+            response = session.post(
+                url,
+                json=apply_prefix(row),
+                auth=self.auth,
+                headers=self.get_headers(),
+                timeout=TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+
+        with ThreadPoolExecutor(self.workers_count) as executor:
+            for _ in executor.map(request, users_data):
+                pass
+
+    @log_calls(logger.debug)
+    def __update_users(self, users_data, prefix=None):
+        """ Uses Intercom's bulk update.
+        But it currently doesn't work and I have no idea why.
+        Wrote a mail into support and disabled this method until investigating
+        in a process.
+        """
         CHUNK_SIZE = 50  # Intercom's limitation
 
         def apply_prefix(row, prefix):
