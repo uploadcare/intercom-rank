@@ -1,7 +1,7 @@
 import logging
 import time
 import random
-from deepcopy import deepcopy
+from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
