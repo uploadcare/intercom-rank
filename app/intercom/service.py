@@ -21,6 +21,12 @@ def _timeout(i):
     return 2 ** i
 
 
+def wait(wait_range=15):
+    wait_time = random.choice(range(wait_range))
+    logger.info('Wait %s seconds.', wait_time)
+    time.sleep(wait_time)
+
+
 requests_retry = retry(RETRY_COUNT, errors=requests.RequestException,
                        timeout=_timeout)
 
@@ -97,10 +103,7 @@ class IntercomClient:
 
         @requests_retry
         def request(row):
-            wait_time = random.choice(range(WAIT_RANGE))
-            logger.info('Wait %s seconds.', wait_time)
-            time.sleep(wait_time)
-
+            wait()
             url = '{0}/users'.format(self.base_url)
             response = session.post(
                 url,
@@ -164,6 +167,8 @@ class IntercomClient:
 
         @requests_retry
         def request(row):
+            wait()
+
             response = session.post(
                 url,
                 json=dict(user={'user_id': row['user_id']}, body=row['body']),
