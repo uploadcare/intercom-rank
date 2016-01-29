@@ -41,7 +41,12 @@ class IntercomUser(db.Model, models.BaseModelMixin):
 
         for user_data in client.iter_users():
             if not user_data['email']:
-                logger.warning('User don\'t have an email. Skip it.')
+                logger.error('User don\'t have an email. Skip it.')
+                continue
+
+            # NOTE: may be use email as identify?
+            if not user_data['user_id']:
+                logger.error('User don\'t have an user_id. Skip it.')
                 continue
 
             email, user_id = user_data['email'], user_data['user_id']
