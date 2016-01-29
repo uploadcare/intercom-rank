@@ -1,9 +1,12 @@
 import logging
-from app import db
 
+from funcy import with_prev
+
+from app import db
 from common import models
 from app.accounts.utils import email_is_useful, extract_domain
-from app.accounts.tasks import fetch_and_update_information
+from app.accounts.tasks import (fetch_and_update_information,
+                                erase_awis_information)
 
 
 logger = logging.getLogger(__name__)
@@ -76,61 +79,63 @@ class IntercomUser(db.Model, models.BaseModelMixin):
 
         return row
 
+    @classmethod
+    def iterate_over_changed_items(cls, domain, is_useful, commit=True):
+        """ Iterator which changes ``.is_useful_domain`` property and gives a
+        way to do are addition actions after that (e.g. commit changes :)
+        """
+        rows = cls.query.filter(
+            cls.domain == domain, cls.is_useful_domain != is_useful
+        ).order_by(cls.project_id.asc()).all()
 
-def new_domain_added_to_black_list(sender, instance, **kwargs):
-    users = IntercomUser.query.filter(
-        IntercomUser.domain == instance.domain,
-        IntercomUser.is_useful_domain == True  # NOQA
-    ).order_by(IntercomUser.project_id.asc()).all()
+        for row, prev_row in with_prev(rows):
+            row.is_useful_domain = is_useful
+            db.session.add(row)
 
-    project_map = {}
-    for user in users:
-        project_map.setdefault(user.project_id, []).append(user)
+            yield row, prev_row
 
-    for project_id, users in project_map.items():
-        client = users[0].project.get_intercom_client()
-        users_data = []
-
-        for user in users:
-            user.is_useful_domain = False
-            db.session.add(user)
-            users_data.append(dict(
-                user_id=user.user_id,
-                custom_attributes={
-                    'lang': None,
-                    'country_rank': None,
-                    'rank_value': None,
-                    'per_million': None,
-                    'page_views_per_million': None,
-                }
-            ))
-
-        client.update_users(users_data, prefix='AWIS')
-        db.session.commit()
+        if commit:
+            db.session.commit()
 
 
-def domain_removed_from_black_list(sender, instance, **kwargs):
-    users = IntercomUser.query.filter(
-        IntercomUser.domain == instance.domain,
-        IntercomUser.is_useful_domain == False  # NOQA
-    ).order_by(IntercomUser.project_id.asc()).all()
+class FreeEmailProviderListChanged:
+    """ Register common common operations which need to process when the
+    FreeEmailProvider has been added or deleted.
+    """
+    def __init__(self, signal, task, is_useful_domain, collect_attribute):
+        self.task = task
+        self.collect_attribute = collect_attribute
+        self.is_useful_domain = is_useful_domain
+        signal.connect(self, sender='accounts.FreeEmailProvider')
 
-    project_map = {}
-    for user in users:
-        project_map.setdefault(user.project_id, []).append(user)
+    def __call__(self, sender, instance, **kwargs):
+        users = IntercomUser.iterate_over_changed_items(
+            instance.domain, self.is_useful_domain, commit=False)
 
-    for project_id, users in project_map.items():
-        emails = []
-        for user in users:
-            user.is_useful_domain = True
-            db.session.add(user)
-            emails.append(user.transformed_email)
+        tmp = []
+        for user, prev_user in users:
+            # Project changed: commit our changes
+            if prev_user and user.project_id != prev_user.project_id:
+                db.session.commit()
+                self.task.delay(tmp, prev_user.project_id)
+                tmp = []
 
-        db.session.commit()
-        fetch_and_update_information.delay(emails, project_id)
+            tmp.append(getattr(user, self.collect_attribute))
+
+        # If after iteration we still have unstaged data
+        if tmp:
+            db.session.commit()
+            self.task.delay(tmp, user.project_id)
 
 
-models.post_save.connect(new_domain_added_to_black_list,
-                         sender='accounts.FreeEmailProvider')
-models.pre_delete.connect(domain_removed_from_black_list,
-                          sender='accounts.FreeEmailProvider')
+free_email_provider_added = \
+    FreeEmailProviderListChanged(signal=models.post_save,
+                                 task=erase_awis_information,
+                                 is_useful_domain=False,
+                                 collect_attribute='user_id')
+
+free_email_provider_deleted = \
+    FreeEmailProviderListChanged(signal=models.pre_delete,
+                                 task=fetch_and_update_information,
+                                 is_useful_domain=True,
+                                 collect_attribute='transformed_email')

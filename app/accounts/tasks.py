@@ -9,8 +9,10 @@ from app import celery, app
 
 logger = logging.getLogger(__name__)
 
+task = celery.task(default_retry_delay=1, max_retries=3)
 
-@celery.task(default_retry_delay=0, max_retries=3)
+
+@task
 def handle_intercom_users(project_id):
     """ Background task which runs after creation of project.
     Fetch and filter users from Intercom. After that call task for
@@ -31,6 +33,7 @@ def handle_intercom_users(project_id):
         for user in IntercomUser.iter_and_sync(project):
             if not user.is_useful_domain:
                 logger.info('Unuseful domain: %s. Skip.', user.domain)
+                continue
 
             yield user.transformed_email
 
@@ -41,7 +44,7 @@ def handle_intercom_users(project_id):
         handle_intercom_users.retry(exc=e)
 
 
-@celery.task
+@celery.task(default_retry_delay=1, max_retries=3)
 def fetch_and_update_information(emails, project_id):
     from app.accounts.models import Project
 
@@ -114,3 +117,27 @@ def fetch_and_update_information(emails, project_id):
     intercom = project.get_intercom_client()
     intercom.update_users(users, prefix='AWIS')
     intercom.create_notes(notes)
+
+
+@task
+def erase_awis_information(users_ids, project_id):
+    from app.accounts.models import Project
+
+    project = Project.query.filter(Project.id == project_id).first()
+    if not project:
+        logger.error('Project with id == %s does not exist', project_id)
+        return
+
+    users_data = [dict(
+        user_id=user_id,
+        custom_attributes={
+            'lang': None,
+            'country_rank': None,
+            'rank_value': None,
+            'per_million': None,
+            'page_views_per_million': None,
+        })
+        for user_id in users_ids]
+
+    intercom = project.get_intercom_client()
+    intercom.update_users(users_data, prefix='AWIS')

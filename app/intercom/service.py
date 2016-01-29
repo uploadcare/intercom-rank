@@ -2,7 +2,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
-from funcy import retry, log_calls
+from funcy import retry, log_calls, pluck, chunks
 
 
 logger = logging.getLogger(__name__)
@@ -83,7 +83,7 @@ class IntercomClient:
 
     @log_calls(logger.debug)
     def update_users(self, users_data, prefix=None):
-        url = '{0}/bulk/users'.format(self.base_url)
+        CHUNK_SIZE = 50  # Intercom's limitation
 
         def apply_prefix(row, prefix):
             if prefix and 'custom_attributes' in row:
@@ -94,7 +94,8 @@ class IntercomClient:
             return row
 
         @requests_retry
-        def request(url, users_data, prefix):
+        def request(users_data):
+            url = '{0}/bulk/users'.format(self.base_url)
             response = session.post(
                 url,
                 json={'items': [
@@ -104,12 +105,22 @@ class IntercomClient:
                 headers=self.get_headers(),
                 timeout=TIMEOUT)
             response.raise_for_status()
-            return response.json()
+            result = response.json()
 
-        return request(url, users_data, prefix)
+            try:
+                status_url = result['links']['self']
+                logger.debug('Bulk update status: %s', status_url)
+            except KeyError:
+                logger.error('Weird response from Intercom: %r', result)
+
+            return result
+
+        with ThreadPoolExecutor(self.workers_count) as executor:
+            for _ in executor.map(request, chunks(CHUNK_SIZE, users_data)):
+                pass
 
     @log_calls(logger.debug)
-    def create_notes(self, data):
+    def create_notes(self, data, force=False):
         url = '{0}/notes'.format(self.base_url)
 
         @requests_retry
@@ -124,9 +135,57 @@ class IntercomClient:
             response.raise_for_status()
             return response.json()
 
+        def iter_data(data):
+            if force:
+                return iter(data)
+
+            # Filter notes for excluding duplicates
+            exist_notes = self.get_notes(pluck('user_id', data))
+
+            for row in data:
+                user_id, body = str(row['user_id']), row['body']
+
+                if user_id not in exist_notes:
+                    yield row
+                    continue
+
+                bodies = pluck('body', exist_notes[user_id])
+                if body in bodies:
+                    logger.debug(
+                        'The note with this body already exists: %r', row)
+                    continue
+
         with ThreadPoolExecutor(self.workers_count) as executor:
-            for _ in executor.map(request, data):
+            for _ in executor.map(request, iter_data(data)):
                 pass
+
+    @log_calls(logger.debug)
+    def get_notes(self, users_ids):
+        """ Fetch notes for users. Returns a dict like: {user_id: [note, note]}
+        """
+        url = '{0}/notes'.format(self.base_url)
+
+        @requests_retry
+        def request(user_id):
+            response = session.get(
+                url,
+                data={'user_id': user_id},
+                auth=self.auth,
+                headers=self.get_headers(),
+            )
+
+            response.raise_for_status()
+            result = response.json()
+            result['user_id'] = str(user_id)
+            return result
+
+        result = {}
+
+        with ThreadPoolExecutor(self.workers_count) as executor:
+            for row in executor.map(request, users_ids):
+                result[row['user_id']] = row['notes']
+
+        return result
 
     @log_calls(logger.debug)
     def subscribe(self, hook_url, topics):
