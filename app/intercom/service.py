@@ -1,6 +1,7 @@
 import logging
 import time
 import random
+from deepcopy import deepcopy
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
@@ -91,14 +92,16 @@ class IntercomClient:
 
     @log_calls(logger.debug)
     def update_users(self, users_data, prefix=None):
-        WAIT_RANGE = 15
-
         def apply_prefix(row):
-            if prefix and 'custom_attributes' in row:
-                row['custom_attributes'] = {
-                    '_'.join((prefix, k)): v
-                    for k, v in row['custom_attributes'].items()
-                }
+            if not prefix or 'custom_attributes' not in row:
+                return row
+
+            row = deepcopy(row)
+            row['custom_attributes'] = {
+                '_'.join((prefix, k)): v
+                for k, v in row['custom_attributes'].items()
+            }
+
             return row
 
         @requests_retry
