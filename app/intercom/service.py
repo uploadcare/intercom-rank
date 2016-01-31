@@ -61,6 +61,9 @@ class IntercomClient:
         default.update(extra)
         return default
 
+    def get_executor(self):
+        return ThreadPoolExecutor(self.workers_count)
+
     @log_calls(logger.debug)
     def iter_users(self, per_page=50, order='desc'):
         VALID_ORDERS = ('desc', 'asc')
@@ -92,63 +95,27 @@ class IntercomClient:
 
     @log_calls(logger.debug)
     def update_users(self, users_data, prefix=None):
-        def apply_prefix(row):
-            if not prefix or 'custom_attributes' not in row:
-                return row
-
-            row = deepcopy(row)
-            row['custom_attributes'] = {
-                '_'.join((prefix, k)): v
-                for k, v in row['custom_attributes'].items()
-            }
-
-            return row
-
-        @requests_retry
-        def request(row):
-            wait()
-            url = '{0}/users'.format(self.base_url)
-            response = session.post(
-                url,
-                json=apply_prefix(row),
-                auth=self.auth,
-                headers=self.get_headers(),
-                timeout=TIMEOUT)
-            response.raise_for_status()
-            return response.json()
-
-        with ThreadPoolExecutor(self.workers_count) as executor:
-            for _ in executor.map(request, users_data):
-                pass
-
-    @log_calls(logger.debug)
-    def __update_users(self, users_data, prefix=None):
         """ Uses Intercom's bulk update.
-        But it currently doesn't work and I have no idea why.
-        Wrote a mail into support and disabled this method until investigating
-        in a process.
         """
         CHUNK_SIZE = 50  # Intercom's limitation
 
-        def apply_prefix(row, prefix):
-            if prefix and 'custom_attributes' in row:
-                row['custom_attributes'] = {
-                    '_'.join((prefix, k)): v
-                    for k, v in row['custom_attributes'].items()
-                }
-            return row
-
         @requests_retry
-        def request(users_data):
+        def request(chunk_of_users_data):
             url = '{0}/bulk/users'.format(self.base_url)
             response = session.post(
                 url,
                 json={'items': [
-                    {'method': 'post', 'data_type': 'user',
-                     'data': apply_prefix(d, prefix)} for d in users_data]},
+                    {
+                        'method': 'post',
+                        'data_type': 'user',
+                        'data': apply_prefix_for_user_data(ch, prefix)
+                    } for ch in chunk_of_users_data]
+                },
                 auth=self.auth,
                 headers=self.get_headers(),
                 timeout=TIMEOUT)
+            # TODO: re-raise custom exception for 429 HTTP error
+            # for further handling (e.g. retry celery task)
             response.raise_for_status()
             result = response.json()
 
@@ -160,9 +127,28 @@ class IntercomClient:
 
             return result
 
-        with ThreadPoolExecutor(self.workers_count) as executor:
+        with self.get_executor() as executor:
             for _ in executor.map(request, chunks(CHUNK_SIZE, users_data)):
                 pass
+
+    @log_calls(logger.debug)
+    def update_user(self, user_data, prefix=None):
+        """ Update a single user
+        """
+        @requests_retry
+        def request(user_data):
+            wait()
+            url = '{0}/users'.format(self.base_url)
+            response = session.post(
+                url,
+                json=apply_prefix_for_user_data(user_data, prefix),
+                auth=self.auth,
+                headers=self.get_headers(),
+                timeout=TIMEOUT)
+            response.raise_for_status()
+            return response.json()
+
+        return request(user_data)
 
     @log_calls(logger.debug)
     def create_notes(self, data, force=False):
@@ -273,3 +259,16 @@ class IntercomClient:
             return response.json()
 
         return request(url)
+
+
+def apply_prefix_for_user_data(user_data, prefix=None):
+    if not prefix or 'custom_attributes' not in user_data:
+        return user_data
+
+    user_data = deepcopy(user_data)
+    user_data['custom_attributes'] = {
+        '_'.join((prefix, k)): v
+        for k, v in user_data['custom_attributes'].items()
+    }
+
+    return user_data
