@@ -122,6 +122,10 @@ def handle_intercom_hooks(internal_secret):
         user['email'],
         commit=True)
 
+    # TODO: put email into the stack (or use special flag in IntercomUser)
+    # and make an actual call of the fetch_and_update_information e.g.
+    # every hour  with all of these emails.
+
     if intercom_user.is_useful_domain:
         fetch_and_update_information.delay([intercom_user.transformed_email],
                                            project.id)

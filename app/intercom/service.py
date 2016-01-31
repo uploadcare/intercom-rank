@@ -1,3 +1,4 @@
+import re
 import logging
 import time
 import random
@@ -5,6 +6,7 @@ from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
+import bleach
 from funcy import retry, log_calls, pluck, chunks
 
 
@@ -137,7 +139,6 @@ class IntercomClient:
         """
         @requests_retry
         def request(user_data):
-            wait()
             url = '{0}/users'.format(self.base_url)
             response = session.post(
                 url,
@@ -182,8 +183,9 @@ class IntercomClient:
                     yield row
                     continue
 
-                bodies = pluck('body', exist_notes[user_id])
-                if '<p>{}</p>'.format(body) not in bodies:
+                bodies = map(normalize_note,
+                             pluck('body', exist_notes[user_id]))
+                if normalize_note(body) not in bodies:
                     yield row
                     continue
 
@@ -272,3 +274,10 @@ def apply_prefix_for_user_data(user_data, prefix=None):
     }
 
     return user_data
+
+
+def normalize_note(body):
+    """ Used for comparing notes.
+    """
+    body = bleach.clean(body, strip=True)
+    return re.sub('\s', '', body).lower()
