@@ -2,6 +2,11 @@
 Intercom-rank: a service where Intercom meets AWIS
 ==================================================
 
+.. image:: /../screenshots/screenshots/index.png
+    :alt: Index page
+    :width: 100%
+
+
 This service adds more information about your users using by `AWIS <http://aws.amazon.com/awis/>`_. According to their emails, try to fill next helpful information:
 
 * User's site title, description, online since.
@@ -57,3 +62,20 @@ Run tests with output:
 .. code-block:: console
 
     $ nose2 tests -B --log-capture
+
+
+Screenshosts
+------------
+
+Project page. Contains fields for credentials and the control to re-importing existing data.
+
+.. image:: /../screenshots/screenshots/project.png
+    :alt: Project's page
+    :width: 100%
+    
+
+Editable list of providers who grant free email hosting. This list used for filtering users before making an actual request to AWIS.
+
+.. image:: /../screenshots/screenshots/fep.png
+    :alt: Editable list of providers of free email hosting
+    :width: 100%
