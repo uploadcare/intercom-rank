@@ -1,25 +1,40 @@
 ==================================================
-Intercom-rank: a service where Intercom meets AWIS
+Intercom-rank: domain ranking for Intercom
 ==================================================
 
-.. image:: /../screenshots/screenshots/index.png
-    :alt: Index page
-    :width: 100%
+About
+-----------
+Intercom Rank adds the actual domain rank, language and a site description from Alexa for any lead or customer in your Intercom dashboard.
+
+.. image:: /../screenshots/screenshots/intercom-rank-1.gif
+    :alt: List of customers
 
 
-This service adds more information about your users using by `AWIS <http://aws.amazon.com/awis/>`_. According to their emails, try to fill next helpful information:
+You can use the domain rank and language to set up different drip campaigns and assign leads to the most awesome sales people in your team.
+
+.. image:: /../screenshots/screenshots/intercom-rank-3.png
+    :alt: Assign to Sales team
+
+
+Intercom Rank adds more information about your leads and customers from AWIS. According to their email domains, it tries to fill some helpful information:
 
 * User's site title, description, online since.
 * User's site language.
-* User's site rank, rank in default country, page views (per million).
+* User's site rank, country ranking, page views (per million).
+    
+Disclaimer
+-----------
+`Intercom <https://www.intercom.io/customer-engagement>`_ is a powerful marketing automation platform that allows you to communicate with your leads and customers. 
 
-For filtering email addresses domains used a  `free_email_provider_domains.txt <https://gist.github.com/zerc/422e749fa533485122fa>`_ originally created by @tbrianjones.
+`Alexa <http://alexa.com>`_ is a web analytics toolkit that provides tons of useful information about any website, including the domain rank and estimated monthly traffic. There is an API to get the data, it called `AWIS <http://docs.aws.amazon.com/AlexaWebInfoService/latest/>`_.
+
+Intercom Rank was developed by `Uploadcare <https://uploadcare.com>`_  team.
 
 
-Development
+Quick start
 -----------
 
-Service primary built on `Flask <http://flask.pocoo.org>`_.
+The service was primarily built on `Flask <http://flask.pocoo.org>`_.
 
 For local install:
 
@@ -64,10 +79,17 @@ Run tests with output:
     $ nose2 tests -B --log-capture
 
 
-Screenshosts
+Settings
 ------------
 
-Project page. Contains fields for credentials and the control to re-importing existing data.
+The list of projects.
+
+.. image:: /../screenshots/screenshots/index.png
+    :alt: Index page
+    :width: 100%
+    
+
+Project page. It contains fields for credentials and the control for re-importing existing data.
 
 .. image:: /../screenshots/screenshots/project.png
     :alt: Project's page
@@ -79,3 +101,14 @@ Editable list of providers who grant free email hosting. This list used for filt
 .. image:: /../screenshots/screenshots/fep.png
     :alt: Editable list of providers of free email hosting
     :width: 100%
+    
+    
+We used `free_email_provider_domains.txt <https://gist.github.com/tbrianjones/5992856>`_ originally created by `@tbrianjones <https://gist.github.com/tbrianjones>`_ to automatically remove free email services.
+
+License
+------------
+This codebase is licensed under the GNU GPL v3.0 License license.
+
+Want to help?
+------------
+Want to file a bug, contribute some code, or improve documentation? Awesome!
