@@ -21,14 +21,23 @@ Intercom Rank adds more information about your leads and customers from AWIS. Ac
 * User's site title, description, online since.
 * User's site language.
 * User's site rank, country ranking, page views (per million).
-    
+
 Disclaimer
 -----------
-`Intercom <https://www.intercom.io/customer-engagement>`_ is a powerful marketing automation platform that allows you to communicate with your leads and customers. 
+`Intercom <https://www.intercom.io/customer-engagement>`_ is a powerful marketing automation platform that allows you to communicate with your leads and customers.
 
 `Alexa <http://alexa.com>`_ is a web analytics toolkit that provides tons of useful information about any website, including the domain rank and estimated monthly traffic. There is an API to get the data, it called `AWIS <http://docs.aws.amazon.com/AlexaWebInfoService/latest/>`_.
 
 Intercom Rank was developed by `Uploadcare <https://uploadcare.com>`_  team.
+
+
+Requirements
+------------
+
+* Python 3+.
+* `Redis <http://redis.io>`_.
+* `AWIS <http://aws.amazon.com/awis/>`_ account.
+* `Intercom <https://www.intercom.io>`_ account.
 
 
 Quick start
@@ -87,22 +96,22 @@ The list of projects.
 .. image:: /../screenshots/screenshots/index.png
     :alt: Index page
     :width: 100%
-    
+
 
 Project page. It contains fields for credentials and the control for re-importing existing data.
 
 .. image:: /../screenshots/screenshots/project.png
     :alt: Project's page
     :width: 100%
-    
+
 
 Editable list of providers who grant free email hosting. This list used for filtering users before making an actual request to AWIS.
 
 .. image:: /../screenshots/screenshots/fep.png
     :alt: Editable list of providers of free email hosting
     :width: 100%
-    
-    
+
+
 We used `free_email_provider_domains.txt <https://gist.github.com/tbrianjones/5992856>`_ originally created by `@tbrianjones <https://gist.github.com/tbrianjones>`_ to automatically remove free email services.
 
 License
