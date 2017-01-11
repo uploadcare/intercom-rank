@@ -114,6 +114,17 @@ Editable list of providers who grant free email hosting. This list used for filt
 
 We used `free_email_provider_domains.txt <https://gist.github.com/tbrianjones/5992856>`_ originally created by `@tbrianjones <https://gist.github.com/tbrianjones>`_ to automatically remove free email services.
 
+Contributors
+------------
+
+- `@zerc`_
+- `@dmitry-mukhin`_
+- `@igordebatur`_
+
+.. _@zerc: https://github.com/zerc
+.. _@dmitry-mukhin: https://github.com/dmitry-mukhin
+.. _@igordebatur: https://github.com/igordebatur
+
 License
 ------------
 This codebase is licensed under the GNU GPL v3.0 License license.
@@ -121,3 +132,11 @@ This codebase is licensed under the GNU GPL v3.0 License license.
 Want to help?
 ------------
 Want to file a bug, contribute some code, or improve documentation? Awesome!
+
+If you think you ran into something in Uploadcare libraries which might
+have security implications, please hit us up at `bugbounty@uploadcare.com`_ or Hackerone.
+
+We'll contact you personally in a short time to fix an issue through
+co-op and prior to any public disclosure.
+
+.. _bugbounty@uploadcare.com: mailto:bugbounty@uploadcare.com
