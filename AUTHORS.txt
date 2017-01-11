@@ -1,0 +1,6 @@
+# git log --format='%aN <%aE>' | sort -u
+
+Dmitry Mukhin <dm+github@uploadcare.com>
+Elijah <ilya@uploadcare.com>
+Igor Debatur <igor@uploadcare.com>
+Vladimir Savin <zero13cool@yandex.ru>
