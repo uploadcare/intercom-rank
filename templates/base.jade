@@ -46,7 +46,7 @@ html.uk-height-1-1.uk-notouch
             - for category, message in messages
               div(class="uk-alert uk-alert-{{ category }}", data-uk-alert)
                 a.uk-alert-close.uk-close(href="#")
-                | {{ message|safe }}
+                | {{ message|e }}
 
       block body
 
