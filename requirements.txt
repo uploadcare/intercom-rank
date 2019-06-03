@@ -28,7 +28,7 @@ funcy==1.6
 celery==3.1.19
 redis==2.10.5
 gunicorn==19.4.5
-requests==2.9.1
+requests==2.22.0
 html5lib==0.9999999
 bleach==1.4.2
 
