@@ -26,7 +26,7 @@ pyjade==3.1.0
 psycopg2==2.6.1
 funcy==1.6
 celery==3.1.19
-redis==2.10.5
+redis==3.2.1
 gunicorn==19.4.5
 requests==2.9.1
 html5lib==0.9999999
