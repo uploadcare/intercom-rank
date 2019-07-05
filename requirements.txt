@@ -1,4 +1,4 @@
-Flask==0.10.1
+Flask==0.12.3
 Flask-Login==0.3.2
 Flask-Mail==0.9.1
 Flask-Migrate==1.7.0
