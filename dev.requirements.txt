@@ -1,4 +1,4 @@
 --requirement requirements.txt
 --requirement test.requirements.txt
-bpython==0.14.2
+bpython==0.20.1
 pudb==2015.4.1
